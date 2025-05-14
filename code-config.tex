@@ -1,0 +1,45 @@
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codeorange}{rgb}{1,0.49,0}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.96}
+
+\lstdefinelanguage{CSharp}{
+    language=C,
+    morekeywords={
+        abstract, as, base, bool, break, byte, case, catch, char, checked, class, const,
+        continue, decimal, default, delegate, do, double, else, enum, event, explicit, extern,
+        false, finally, fixed, float, for, foreach, goto, if, implicit, in, int, interface,
+        internal, is, lock, long, namespace, new, null, object, operator, out, override, params,
+        private, protected, public, readonly, ref, return, sbyte, sealed, short, sizeof, stackalloc,
+        static, string, struct, switch, this, throw, true, try, typeof, uint, ulong, unchecked,
+        unsafe, ushort, using, virtual, void, volatile, while, var, dynamic, get, set
+    },
+    morecomment=[l]{//},
+    morecomment=[s]{/*}{*/},
+    morestring=[b]",
+    sensitive=true
+}
+
+\lstdefinestyle{csharpStyle}{
+    language=CSharp,
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegray},
+    keywordstyle=\color{codeorange}\bfseries,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codegreen},
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=10pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    xleftmargin=1.5em,
+    frame=none
+}
