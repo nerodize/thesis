@@ -3,22 +3,35 @@
 \input{code-config.tex}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[colorlinks=true, linkcolor=black, urlcolor=blue]{hyperref}
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{fancyhdr} 
+\usepackage[colorlinks=true, linkcolor=blue, citecolor=, urlcolor=red]{hyperref} 
+\usepackage{parskip}
+\usepackage[style=numeric-comp, sorting=none, backend=biber]{biblatex} 
+\addbibresource{literatur/literatur.bib}
 
-\title{Netcode in einer Unity basierten Zielumgebung}
+\title{Netcode-Mechaniken in Echtzeitanwendungen: Analyse von Client-Side Prediction, Interpolation und Lag Compensation am Beispiel einer Unity-basierten Zielumgebung}
 \author{Alexander Seitz}
 \date{14.05.2025}
 
 \begin{document}
 
 \maketitle
+\newpage
+
 \tableofcontents
 \newpage
 
 \section{Einleitung}
+Moderne Echtzeitanwendungen, insbesondere im Bereich der Computerspiele, stellen hohe Anforderungen an die zugrunde liegende Netzwerkarchitektur. Die Synchronisation von Spielzuständen, die Minimierung von Latenzzeiten sowie ein robuster Umgang mit Paketverlust und Jitter sind entscheidend für eine positive Nutzererfahrung. Multiplayer-Systeme, wie sie etwa mit Unity entwickelt werden, müssen deshalb nicht nur funktional, sondern auch leistungsfähig und fehlertolerant sein.
+
+Die vorliegende Arbeit beschäftigt sich mit den theoretischen und technischen Grundlagen der Netzwerkkommunikation in Mehrspielerumgebungen. Anhand eines prototypischen Projekts in Unity werden exemplarisch zentrale Mechanismen wie Reconciliation, Interpolation sowie die Kommunikation im Client-Server-Modell umgesetzt und analysiert.
+
+Im Folgenden werden zunächst die Motivation und Zielsetzung der Arbeit erläutert. Anschließend wird der strukturelle Aufbau der Arbeit vorgestellt.
+
 \subsection{Motivation}
+
 \subsection{Zielsetzung der Arbeit}
 \subsection{Aufbau der Arbeit}
 
@@ -33,11 +46,21 @@
 \subsection{Netzwerktheorie}
 \subsubsection{Tickrate und Input Delay}
 \subsubsection{Reconciliation, Prediction, Interpolation}
-\subsection{Mathematische Grundlagen für Bewegung und Synchronisation}
+\subsection{Mathematische Grundlagen}
 \subsubsection{Vektoren, Transformationen und Rotationen}
 \subsubsection{Quaternionen und ihre Bedeutung in 3D-Rotation}
 \subsubsection{Interpolationsverfahren}
-\paragraph{Lineare Interpolation}
-\paragraph{Spherische Interpolation}
+\newpage
 
+\section{C\# Beispiel: Unity Netcode}
+
+Das folgende Beispiel zeigt, wie man eine einfache \texttt{NetworkManager}-Klasse in Unity erstellen kann, die bei der Verbindung von Server und Client hilft.
+Moderne Echtzeitanwendungen stellen hohe Anforderungen penis an die Netzwerkarchitektur \cite{nextjsDocs}.
+
+\lstinputlisting[style=csharpStyle, caption={Unity Netcode Example}]{src/Unity.cs}
+
+
+\newpage
+\section{Literaturverzeichnis}
+\printbibliography
 \end{document}
