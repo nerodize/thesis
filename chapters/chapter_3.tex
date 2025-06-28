@@ -1,0 +1,43 @@
+\chapter{Beschreibung des Unity Prototyps}
+
+Der entwickelte Prototyp  bildet eine einfache First-Person-Shooter-Sandbox ab und dient als Testumgebung für die Untersuchung netzwerkbezogener Mechaniken wie Interpolation, Client-Side Prediction und Lag Compensation. Der Prototyp wird auch zum Abschluss der Arbeit bewusst schlicht gehalten, da der Fokus auf der Netzwerkschicht liegt – nicht auf grafischen oder animationsbasierten Aspekten. Texturen, Beleuchtung und Animationen wurden daher nur in minimalem Umfang berücksichtigt.
+Im Verlauf der Arbeit existieren prinzipiell zwei Versionen, bei denen es sich zum einen um die Grundstruktur des Spiels gekümmert werden musste, was demnach den Offline-Prototypen darstellt. Diese Version besteht aus fundamentalen aber auch sehr schlicht gehaltenen Bestandteilen für ein FPS-Spiel. Diese bestehen aus einem Character Controller mit dem man springen und laufen kann und einer Waffe in First-Person-Ansicht, die über eine Schuss- und Nachlademechanik verfügt. 
+Ein Schadensmodell, das als Metadaten den einzelnen Waffen zugewiesen werden kann und das alles auf einer minimalistischen Prototyp-Map.
+Auf diesem Prototypen anknüpfend, sollen und wurden besagte Netcode-Mechaniken inklusive Synchronisation integriert werden.   
+
+\newpage
+\section{Szenario und Spiellogik}
+Die Umgebung erinnert an Aim-Trainingsszenarien aus Spielen wie \textit{Valorant} (Range) oder eigenständigen Tools wie \textit{Aim Lab}. Der Spieler wird durch einen FPS-Controller dargestellt, der als \texttt{Prefab} implementiert ist. In der Szene bewegen sich ein oder mehrere Zielobjekte (Targets), die sich zufällig und unvorhersehbar über das Spielfeld bewegen. Diese Targets können wiederholt erscheinen (respawnable) und dienen im späteren Verlauf zur Untersuchung netzwerkbedingter Bewegungsartefakte.
+Zusätzlich können sich mehrere Clients auf den Server verbinden und sollen synchronisiert werden. Hierbei geht es darum Inputlatenz auch bei hohem Ping minimal zu halten und ein flüssiges und direktes Spielgefühl zu erlauben auch bei hoher Latenz.
+
+
+\section{Waffenmechanik und Spielgefühl}
+Für das Waffenmodell wurde ein Asset aus dem Unity Asset Store verwendet\footnote{Platzhalter: \textit{Name des Assets einfügen}}, da die Eigenmodellierung in Blender aus zeitlichen Gründen verworfen wurde. Dennoch wurden grundlegende FPS-typische Elemente integriert:
+
+\begin{itemize}
+  \item Rückstoß (Recoil)
+  \item Bewegungsbasiertes Waffenbobbing und Sway
+  \item Mündungsfeuer (Muzzle Flash)
+  \item Einschusslöcher (Decals)
+\end{itemize}
+
+Diese Features verbessern nicht nur das Spielgefühl, sondern sind auch eine wichtige Grundlage für die spätere visuelle Analyse der Netzwerkmechaniken. Die Netzwerksynchronisation solcher Effekte gilt als nicht trivial und ist auch in professionellen Produktionen fehleranfällig und wird demnach ebenfalls ausgelassen.
+Spielerobjekte werden in Unity meistens über ein eigenes Network-Transform synchronisiert, welches in der Regel hauptsächlich nur Für die Position des jeweiligen Transforms zuständig ist. Wenn also Einschusslöcher synchronisiert werden müssen oder Animationen bzgl. der Waffen muss dies auf anderer Ebene entstehen was auch zu Kollisionen mit dem bereits verwendetem Network Transform. 
+
+\section{Technische Herausforderung: Raycasting}
+Ein zentrales technisches Problem ergab sich bei der Definition des Ursprungs der Schusslinie (Raycast). Zwei gängige Ansätze wurden gegenübergestellt:
+
+\begin{enumerate}
+  \item Raycast vom Lauf der Waffe (Mündung)
+  \item Raycast aus dem Zentrum der Kamera (Fadenkreuz)
+\end{enumerate}
+
+Für den Prototyp wurde Variante 2 gewählt, da diese Methode eine konsistentere Treffergenauigkeit gewährleistet und im Hinblick auf Debugging und Netzwerkanalyse einfacher zu handhaben ist.
+
+\section{Netzwerkarchitektur des Prototypen}
+Der Prototyp basiert auf dem \textit{Netcode for GameObjects}-Framework von Unity und nutzt ein Server-Client-Modell. Clients werden über den Unity-Build gestartet und mit einem lokalen Server verbunden. Netzwerkkomponenten wie Zustandsübertragung und Objektregistrierung erfolgen aktuell noch über Unitys \texttt{NetworkTransform}-Komponente.
+
+Diese Komponente erlaubt eine schnelle Prototypenerstellung, übernimmt jedoch automatisch Funktionen wie Interpolation und Zustandssynchronisation. Für die Zwecke dieser Arbeit ist dies ungeeignet, da keine gezielte Kontrolle oder Analyse der einzelnen Netzwerkmechanismen möglich ist. 
+
+\subsection{Ausblick:}
+In den kommenden Entwicklungsschritten soll die \\ \texttt{NetworkTransform}-Komponente teilweise durch eine eigene Implementierung ersetzt werden, um die Funktionsweise und Auswirkungen von Interpolation, Prediction, Reconciliation und Lag Compensation explizit untersuchen und visualisieren zu können.

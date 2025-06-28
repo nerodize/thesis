@@ -9,6 +9,11 @@ all: $(OUTDIR)/$(MAIN).pdf
 
 $(OUTDIR)/$(MAIN).pdf: $(SRCDIR)/$(MAIN).tex
 	@mkdir -p $(OUTDIR)
+	# Erster LaTeX-Lauf
+	$(LATEXMK) $(LATEXMK_OPTS) -output-directory=$(OUTDIR) $(SRCDIR)/$(MAIN).tex
+	# Biber muss nach dem ersten Lauf ausgeführt werden
+	biber --input-directory $(OUTDIR) $(MAIN)
+	# Zweiter LaTeX-Lauf, um die Literaturverweise einzubauen
 	$(LATEXMK) $(LATEXMK_OPTS) -output-directory=$(OUTDIR) $(SRCDIR)/$(MAIN).tex
 
 clean:

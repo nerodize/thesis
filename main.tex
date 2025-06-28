@@ -1,14 +1,27 @@
-\documentclass{article}
-\usepackage[ngerman]{babel}
+\documentclass[
+11pt, % The default document font size, options: 10pt, 11pt, 12pt
+%oneside, % Two side (alternating margins) for binding by default, uncomment to switch to one side
+english, % ngerman for German
+singlespacing, % Single line spacing, alternatives: onehalfspacing or doublespacing
+%draft, % Uncomment to enable draft mode (no pictures, no links, overfull hboxes indicated)
+%nolistspacing, % If the document is onehalfspacing or doublespacing, uncomment this to set spacing in lists to single
+%liststotoc, % Uncomment to add the list of figures/tables/etc to the table of contents
+%toctotoc, % Uncomment to add the main table of contents to the table of contents
+%parskip, % Uncomment to add space between paragraphs
+%nohyperref, % Uncomment to not load the hyperref package
+headsepline, % Uncomment to get a line under the header
+%chapterinoneline, % Uncomment to place the chapter title next to the number on one line
+%consistentlayout, % Uncomment to change the layout of the declaration, abstract and acknowledgements pages to match the default layout
+]{MastersDoctoralThesis} % The class file specifying the document structure
+% \usepackage[ngerman]{babel}
 \input{code-config.tex}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{listings}
 \usepackage{xcolor}
-\usepackage{fancyhdr} 
+%\usepackage{fancyhdr} 
 \usepackage[colorlinks=true, linkcolor=blue, citecolor=, urlcolor=red]{hyperref} 
 \usepackage{float}
-
 \usepackage{parskip}
 \usepackage[style=numeric-comp, sorting=none, backend=biber]{biblatex} 
 \addbibresource{literatur/literatur.bib}
@@ -17,156 +30,59 @@
 \renewcommand{\arraystretch}{1.2} 
 \newcolumntype{Y}{>{\raggedright\arraybackslash\hspace{0pt}}X} 
 
-\title{\textbf{Netcode-Mechaniken in Echtzeitanwendungen}}
-\author{Alexander Seitz }
-\date{14.05.2025}
+\thesistitle{Netcode in Unity} % Your thesis title, this is used in the title and abstract, print it elsewhere with \ttitle
+
+\supervisor{Prof. Dr. \textsc{Müller }} % Your supervisor's name, this is used in the title page, print it elsewhere with \supname
+
+\examiner{Müller} % Your examiner's name, this is not currently used anywhere in the template, print it elsewhere with \examname
+
+\degree{Bachelor of Business Information Systems} % Your degree name, this is used in the title page and abstract, print it elsewhere with \degreename
+
+\author{Alexander \textsc{Seitz}} % Your name, this is used in the title page and abstract, print it elsewhere with \authorname
+
+\addresses{} % Your address, this is not currently used anywhere in the template, print it elsewhere with \addressname
+
+\subject{Business Information Systems} % Your subject area, this is not currently used anywhere in the template, print it elsewhere with \subjectname
+
+\keywords{} % Keywords for your thesis, this is not currently used anywhere in the template, print it elsewhere with \keywordnames
+
+\university{\href{http://www.h-ka.de}{Hochschule Karlsruhe}} % Your university's name and URL, this is used in the title page and abstract, print it elsewhere with \univname
+\department{\href{http://department.university.com}{Business Information Systems}} % Your department's name and URL, this is used in the title page and abstract, print it elsewhere with \deptname
+
+\group{\href{http://researchgroup.university.com}{Research Group Name}} % Your research group's name and URL, this is used in the title page, print it elsewhere with \groupname
+
+\faculty{\href{http://faculty.university.com}{Wirtschaftsinformatik}} % Your faculty's name and URL, this is used in the title page and abstract, print it elsewhere with \facname
+
+\AtBeginDocument{
+\hypersetup{pdftitle=\ttitle} % Set the PDF's title to your title
+\hypersetup{pdfauthor=\authorname} % Set the PDF's author to your name
+\hypersetup{pdfkeywords=\keywordnames} % Set the PDF's keywords to your keywords
+}
+
+\usepackage{tikz}
+
+\usepackage{tgheros}
+\renewcommand*\familydefault{\sfdefault}
+
 
 \begin{document}
 
+\include{Frontpage/frontpage}
 \maketitle
-\newpage
+
 
 \tableofcontents
-\newpage
-
-\section{Einleitung}
-Moderne Echtzeitanwendungen, insbesondere im Bereich der Computerspiele, stellen hohe Anforderungen an die zugrunde liegende Netzwerkarchitektur. Die Synchronisation von Spielzuständen, die Minimierung von Latenzzeiten sowie ein robuster Umgang mit Paketverlust und Jitter sind entscheidend für eine positive Nutzererfahrung. Multiplayer-Systeme, wie sie etwa mit Unity entwickelt werden, müssen deshalb nicht nur funktional, sondern auch leistungsfähig und fehlertolerant sein.
-
-Die vorliegende Arbeit beschäftigt sich mit den theoretischen und technischen Grundlagen der Netzwerkkommunikation in Mehrspielerumgebungen. Anhand eines prototypischen Projekts in Unity werden exemplarisch zentrale Mechanismen wie Reconciliation, Interpolation sowie die Kommunikation im Client-Server-Modell umgesetzt und analysiert.
-
-Im Folgenden werden zunächst die Motivation und Zielsetzung der Arbeit erläutert. Anschließend wird der strukturelle Aufbau der Arbeit vorgestellt.
-\newpage
-\section{Auswahl der Spiel-Engine}
-
-In dieser Hinsicht ist es wichtig, Auswahlkriterien verschiedener Spiel-Engines in Betracht zu ziehen. Die wichtigsten Kriterien waren: 
-
-\begin{itemize}
-    \item \textbf{Lernkurve}: Wie zugänglich ist die Engine für Entwickler mit unterschiedlichen Erfahrungsstufen?
-    \item \textbf{Community und Ressourcen}: Verfügbarkeit von Dokumentationen, Tutorials und aktiver Community.
-    \item \textbf{Netcode-Fähigkeiten}: Wie gut lässt sich Multiplayer-Logik implementieren?
-    \item \textbf{Performance}: Optimierungsmöglichkeiten für verschiedene Plattformen, insbesondere im Multiplayer-Bereich.
-    \item \textbf{Kosten und Lizenzmodell}: Wie gut zugänglich sind die einzelnen Produkte?
-    \item \textbf{Programmiersprache}: Gibt es hier noch hohen zusätzlichen Lernaufwand?
-    \item \textbf{Marktrelevanz}: Wie etabliert ist die Engine in der Spielebranche?
-\end{itemize}
-
-Ein direkter Vergleich der bekanntesten Engines zeigt folgende Eigenschaften:
-
-\begin{table}[H]
-\centering
-\caption{Vergleich populärer Spiel-Engines}
-{\small
-\begin{tabularx}{\textwidth}{|l|Y|Y|Y|}
-\hline
-\textbf{Kriterium} & \textbf{Unity} & \textbf{Unreal Engine} & \textbf{Godot} \\
-\hline
-Programmiersprache & C\# & C++ / Blueprints & GDScript / C\# \\
-\hline
-Lernkurve & Mittel & Hoch & Niedrig \\
-\hline
-Community & Sehr groß & Groß & Wächst schnell \\
-\hline
-Netcode & NGO, FishNet u.a. & Eigenes Replication-System & Drittanbieter, rudimentär \\
-\hline
-Performance & Gut (abhängig von Optimierung) & Sehr hoch & Mittel \\
-\hline
-Lizenz / Kosten & Kostenlos (eingeschränkt), Runtime Fee seit 2024 \cite{unitylicense} & Royalty-basiert \cite{unrealpricing} & Open Source \cite{godotdoc} \\
-\hline
-Verbreitung in Industrie & Sehr hoch & Hoch & Gering \\
-\hline
-\end{tabularx}
-}
-\end{table}
-
-\newpage
-Basierend auf den genannten Faktoren fiel die Wahl auf \textbf{Unity}, da diese Engine eine ausgewogene Kombination aus Zugänglichkeit, Flexibilität und Netcode-Erweiterbarkeit bietet. \\
-Besonders die Integration von C\# als Programmiersprache, die umfangreiche Dokumentation sowie die breite Community-Unterstützung waren ausschlaggebend.
-
-Unreal Engine hingegen spielt vor allem in der Entwicklung moderner, grafisch anspruchsvoller Spiele eine zentrale Rolle. Während Unity und Godot insbesondere im Indie-Bereich weit verbreitet sind, wird Unreal Engine regelmäßig für sogenannte AAA-Titel eingesetzt -- etwa bei \textit{Fortnite}, \textit{Valorant} oder der \textit{Gears of War}-Reihe.
-
-Ein besonderes Beispiel für die Weiterentwicklung der Engine durch Eigengebrauch ist das Prinzip des „Dogfooding“. Epic Games nutzt die Unreal Engine intern intensiv zur Entwicklung eigener Spiele wie \textit{Fortnite}, wodurch neue Features -- etwa das Partikelsystem \textit{Niagara} -- direkt unter realen Produktionsbedingungen erprobt und optimiert werden \cite{dogfoodingexample}.
-
-Insbesondere mit der Einführung von Unreal Engine 5 (UE5) hat sich die Engine als Standardlösung für kleinere bis mittlere Studios etabliert, die auf fotorealistische Darstellung und moderne Grafiktechnologien wie \textit{Lumen} oder \textit{Path Tracing} setzen. Unity kann in diesen Bereichen zwar nicht vollständig mithalten, bietet jedoch im Kontext dieser Arbeit -- etwa bei der prototypischen Umsetzung netzwerkbasierter Mechaniken -- eine effizientere und zugänglichere Plattform. Beispiele wie \textit{BattleBit Remastered} (2023) jedoch zeigen, dass auch technisch reduzierte, aber netzwerkseitig ausgereifte Multiplayer-Titel mit Unity erfolgreich realisiert werden können.
-
-\subsection{Eigenimplementierung und Auswahl des Netcode-Frameworks}
 
 
-Im Bereich Netcode existieren für Unity verschiedene Frameworks. Zunächst wurde Unitys offizielles \textbf{Netcode for GameObjects (NGO)} in Betracht gezogen. In der praktischen Erprobung zeigten sich jedoch Schwächen im zugrunde liegenden \textit{Tickmodell}. NGO nutzt ein festes Zeitraster zur Synchronisation zwischen Server und Clients, wobei alle Netzwerkaktionen strikt an die sogenannte \textit{NetworkTick}-Rate gebunden sind.
-
-Dieses Modell ist zwar grundsätzlich stabil, führt jedoch bei Spielen mit hoher Eingabefrequenz oder schnellen Bewegungsabläufen zu Einschränkungen: Eingaben, die zwischen zwei Ticks liegen, werden verzögert verarbeitet, was sich in Form von spürbarer Latenz oder schwankender Reaktionsgeschwindigkeit äußern kann. Besonders bei deterministisch kritischen Anwendungen erschwert dies eine präzise Umsetzung von Mechaniken wie Client-Side Prediction oder Server Reconciliation.
-
-\newpage
-Als Alternative wurde das Framework \textbf{FishNet} evaluiert, das in der offiziellen Dokumentation ausdrücklich für Anwendungsfälle mit hohen Anforderungen an Präzision und deterministische Logik empfohlen wird \cite{fishnetdocs}. FishNet nutzt ein eigenes Tick-basiertes Netzwerkmodell und bietet unter anderem:
-
-\begin{itemize}
-    \item Vollständige Kontrolle über Netzwerklogik
-    \item Support für Host-Modus, Dedicated Server und Peer-to-Peer
-    \item Integration mit Prediction, Interpolation und Authentifizierung
-\end{itemize}
-
-Trotz dieser technischen Vorteile wurde für diese Arbeit letztlich \textbf{NGO verwendet}. Hauptgrund war zum einen der geringere Integrationsaufwand und die direkte Unterstützung durch Unity. Eine vollständige Migration auf FishNet hätte umfangreiche Anpassungen erfordert, die im gegebenen Zeitrahmen nicht realisierbar gewesen wären.
-
-Zum anderen liegt der Schwerpunkt dieser Arbeit explizit auf dem \textbf{Verständnis und der eigenständigen Implementierung} zentraler Netcode-Mechaniken wie \textit{Client-Side Prediction}, \textit{Server Reconciliation} und \textit{Interpolation}. Statt auf bereits vollständig implementierte Framework-Funktionalitäten zurückzugreifen, wird ein eigenes, leichtgewichtiges System entwickelt, um die Funktionsweise dieser Konzepte praktisch und nachvollziehbar umzusetzen.
-
-NGO wird hierbei vor allem als \textit{Basisschicht} für die Netzwerkkommunikation genutzt, während zentrale Mechanismen unabhängig davon realisiert werden. Dieser Ansatz erlaubt eine tiefere Auseinandersetzung mit den zugrunde liegenden Prinzipien und Herausforderungen im Netcode-Design.
-
-\newpage
-
-\section{Beschreibung des Unity-Prototyps}
-\label{sec:prototyp}
-
-Der entwickelte Prototyp bildet eine einfache First-Person-Shooter-Sandbox ab und dient als Testumgebung für die Untersuchung netzwerkbezogener Mechaniken wie Interpolation, Client-Side Prediction und Lag Compensation. Der Prototyp wird auch zum Abschluss der Arbeit bewusst schlicht gehalten, da der Fokus auf der Netzwerkschicht liegt – nicht auf grafischen oder animationsbasierten Aspekten. Texturen, Beleuchtung und Animationen wurden daher nur in minimalem Umfang berücksichtigt.
-
-\subsection{Szenario und Spiellogik}
-Die Umgebung erinnert an Aim-Trainingsszenarien aus Spielen wie \textit{Valorant} (Range) oder eigenständigen Tools wie \textit{Aim Lab}. Der Spieler wird durch einen FPS-Controller dargestellt, der als \texttt{Prefab} implementiert ist. In der Szene bewegen sich ein oder mehrere Zielobjekte (Targets), die sich zufällig und unvorhersehbar über das Spielfeld bewegen. Diese Targets können wiederholt erscheinen (respawnable) und dienen im späteren Verlauf zur Untersuchung netzwerkbedingter Bewegungsartefakte.
-
-\subsection{Waffenmechanik und Spielgefühl}
-Für das Waffenmodell wurde ein Asset aus dem Unity Asset Store verwendet\footnote{Platzhalter: \textit{Name des Assets einfügen}}, da die Eigenmodellierung in Blender aus zeitlichen Gründen verworfen wurde. Dennoch wurden grundlegende FPS-typische Elemente integriert:
-
-\begin{itemize}
-  \item Rückstoß (Recoil)
-  \item Bewegungsbasiertes Waffenbobbing und Sway
-  \item Mündungsfeuer (Muzzle Flash)
-  \item Einschusslöcher (Decals)
-\end{itemize}
-
-Diese Features verbessern nicht nur das Spielgefühl, sondern sind auch eine wichtige Grundlage für die spätere visuelle Analyse der Netzwerkmechaniken. Die Netzwerk-Synchronisation solcher Effekte gilt als nicht trivial und ist auch in professionellen Produktionen fehleranfällig.
-
-\subsection{Technische Herausforderung: Raycasting}
-Ein zentrales technisches Problem ergab sich bei der Definition des Ursprungs der Schusslinie (Raycast). Zwei gängige Ansätze wurden gegenübergestellt:
-
-\begin{enumerate}
-  \item Raycast vom Lauf der Waffe (Mündung)
-  \item Raycast aus dem Zentrum der Kamera (Fadenkreuz)
+\mainmatter
+\include{chapters/chapter_1}
+\include{chapters/chapter_2}
+\include{chapters/chapter_3}
+\include{chapters/chapter_4}
+\include{chapters/chapter_5}
 \end{enumerate}
 
-Für den Prototyp wurde Variante 2 gewählt, da diese Methode eine konsistentere Treffergenauigkeit gewährleistet und im Hinblick auf Debugging und Netzwerkanalyse einfacher zu handhaben ist.
 
-\subsection{Netzwerkarchitektur (aktueller Stand)}
-Der Prototyp basiert auf dem \textit{Netcode for GameObjects}-Framework von Unity und nutzt ein Server-Client-Modell. Clients werden über den Unity-Build gestartet und mit einem lokalen Server verbunden. Netzwerkkomponenten wie Zustandsübertragung und Objektregistrierung erfolgen aktuell noch über Unitys \texttt{NetworkTransform}-Komponente.
-
-Diese Komponente erlaubt eine schnelle Prototypenerstellung, übernimmt jedoch automatisch Funktionen wie Interpolation und Zustandssynchronisation. Für die Zwecke dieser Arbeit ist dies ungeeignet, da keine gezielte Kontrolle oder Analyse der einzelnen Netzwerkmechanismen möglich ist. 
-
-\paragraph{Ausblick:}
-In den kommenden Entwicklungsschritten soll die \\ \texttt{NetworkTransform}-Komponente durch eine eigene Implementierung ersetzt werden, um die Funktionsweise und Auswirkungen von Interpolation, Prediction und Lag Compensation explizit untersuchen und visualisieren zu können.
-
-\newpage
-
-\section{Analysewerkzeuge für Netcode und Debugging}
-
-
-Zur Untersuchung netzwerkbasierter Spielmechaniken wie Client-Side Prediction, Lag Compensation oder Interpolation ist der Einsatz geeigneter Analysewerkzeuge essenziell. Ziel ist es, sowohl das Verhalten dieser Mechaniken unter verschiedenen Bedingungen zu verstehen, als auch deren Einfluss auf das Spielgefühl sichtbar und messbar zu machen.
-
-Im Rahmen dieser Arbeit soll ein eigenes Tool entwickelt werden, bestehend aus einem Debug-Overlay und einer integrierten Ingame-Konsole. Dieses Werkzeug ermöglicht es, netzwerkrelevante Parameter -- wie beispielsweise Interpolationszeiten, künstliche Latenz oder Glättungsalgorithmen -- zur Laufzeit zu verändern. \\
-So lassen sich spezifische Szenarien gezielt nachstellen und deren Auswirkungen visuell nachvollziehen.
-
-Neben dieser Eigenentwicklung existieren auch externe Lösungen, wie etwa der Unity Profiler mit Netcode-Unterstützung oder Werkzeuge von Drittanbietern wie Photon Fusion Analyzer. Diese bieten detaillierte technische Einblicke, sind jedoch oft nicht für eine interaktive Analyse innerhalb des Spiels ausgelegt.
-
-Das entwickelte Debug-System hingegen erlaubt eine tiefere Integration in den Entwicklungsprozess: Es zeigt Zustände wie die aktuelle Netzwerkverzögerung, Tick-Synchronisation oder Prediction-Fehler direkt im Spiel an. Ergänzend dazu erlaubt die Konsole das Aktivieren und Deaktivieren einzelner Netcode-Komponenten oder das dynamische Nachjustieren von Parametern -- ohne das Spiel neu starten zu müssen.
-
-Durch diese Flexibilität ist das System besonders geeignet für die iterative Entwicklung und Bewertung von Netcode-Strategien und stellt daher das zentrale Analysewerkzeug dieser Arbeit dar.
-
-\newpage
-\section{Literaturverzeichnis}
 \printbibliography
+
 \end{document}

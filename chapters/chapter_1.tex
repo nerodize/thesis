@@ -1,0 +1,30 @@
+\chapter{Einleitung}
+\label{chapter_1}
+\newcommand{\keyword}[1]{\textbf{#1}}
+\newcommand{\tabhead}[1]{\textbf{#1}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\file}[1]{\texttt{\bfseries#1}}
+\newcommand{\option}[1]{\texttt{\itshape#1}}
+
+Moderne Echtzeitanwendungen, insbesondere im Bereich der Computerspiele, stellen hohe Anforderungen an die zugrunde liegende Netzwerkarchitektur. Die Synchronisation von Spielzuständen, die Minimierung von Latenzzeiten sowie ein robuster Umgang mit Paketverlust und Jitter sind entscheidend für eine positive Nutzererfahrung. Multiplayer-Systeme, wie sie etwa mit Unity entwickelt werden, müssen deshalb nicht nur funktional, sondern auch leistungsfähig und fehlertolerant sein.
+
+Die vorliegende Arbeit beschäftigt sich mit den theoretischen und technischen Grundlagen der Netzwerkkommunikation in Mehrspielerumgebungen. Anhand eines prototypischen Projekts in Unity werden exemplarisch zentrale Mechanismen wie Reconciliation, Interpolation sowie die Kommunikation im Client-Server-Modell umgesetzt und analysiert.
+
+Im Folgenden werden zunächst die Motivation und Zielsetzung der Arbeit erläutert. Anschließend wird der strukturelle Aufbau der Arbeit vorgestellt.
+
+\section{Motivation}
+In den meisten modernen Spielen ist oft ein Teil des Spiels als Mehrspieler ein kooperativer Teil des Spiels integriert. Diese Bereiche reichen von strategischen FPS, Survival-Spielen bis zu Rennspielen. In all diesen Spielen wird von den Spielern ein hoher Wert auf Genauigkeit und Funktionalität des Netcode-Systems verlangt.
+Diese Integration bringt oft sehr viele Herausforderungen, in manchen Fällen ist auch eine komplette Eigenimplementierung auf Grund der Komplexität von der Basis des Spiels nicht abzudenken. Viele Entwickler vor allem Indie-Entwickler, stellen wenn überhaupt einen Mehrspieler erst einmal hinten an, da eine ausgereifte Integration vor allem für Unerfahrene eine große Herausforderung werden kann. 
+
+Im Bereich der AAA-Titel jedoch, kommt es immer häufiger zu Kritikäußerungen von Medien als auch Spielern. In vielen Fällen wird sich auf die kostensparenden Ansätze der Entwickler beziehungsweise der Publisher der Spiele bezogen, die sich für billigere und somit leistungsärmere Alternativen wie bspw. Server mit niedrigeren Tickraten entscheiden.
+In den letzten Jahren kam jedoch eine der kuriosesten Neuerungen in den Mainstream der strategischen FPS, nämlich sollte das Counter Strike 2 -- der direkte Nachfolger von CS:GO -- auf Grundlage eines Subtick-Systems implementiert werden, anstatt das altbewährte klassische Ticksystem zu verbessern und modernisieren.
+Das System existierte schon vor der Integration des beliebten FPS, dennoch wurde es nie konsequent oder erfolgreich integriert. 
+Subtick ist im Grunde ein eigenes Ticksystem zwischen Ticks, demnach ist jeder Input mit einem konkreten Timestamp versehen und soll rein theoretisch, zu genaueren und direkterem Spielgefühl führen.
+Beim Klassischen System werden Eingaben zwischen Ticks an den nächsten Tick delegiert, was Synchronisation zwischen Clients oft erschwert bzw. oft zu uneinheitlichen Erfahrungen fürht.
+
+Demnach liegt die Frage nahe, ob es sich wirklich um ein Problem beim Entwickler handelt oder ein Problem, von maßloser Komplexität, die von so vielen Variablen abhängt, dass sie in keinem Fall zu perfektionieren ist.
+(Das könnte man auf jeden Fall ändern, war nur das erste was mir eingefallen ist).
+\section{Zielsetzung}
+In dieser Arbeit sollen Netcode und darauf aufbauende Netcode Mechanismen auf theoretischer und praktischer Grundlage beleuchtet werden und in einem prototypischen Spiel integriert werden.
+Da die reine Umsetzung keinen großen akademischen Mehrwert bietet, sollen Strategien entworfen werden, die zur Visualisierung und damit hoffentlich der Verbesserung des Verständnisses der Mechaniken dienen.
+Es sollen des weiteren verschiedene Szenarien untersucht werden, die auch von Idealbedingungen abweichen können.

@@ -1,0 +1,104 @@
+\chapter{Auswahl der Engine}
+Um die bestmöglichste und vor allem effizienteste Entwicklung des Spiels und der geplanten Netcode Mechanismen zu integrieren, ist also eine durchdachte Wahl der Spiel Engine extrem wichtig.
+Da vor allem Zeit ein Engpass in einem ambitionierten Projekt, wäre es fatal, wenn auf Grund der Wahl der Engine kein Fortschritt gemacht werden kann. 
+Die wichtigsten Kriterien waren: 
+
+\section{Lernkurve}
+Eine der wichtigeren Aspekte bezieht sich auf die Lernkurve der Game Engine für den Entwickler. Wenn also eine Engine mit so viel Lernaufwand in Verbindung steht um überhaupt eine triviale Szene zum Laufen zu bekommen, dann ist diese wohlmöglich nicht die richtige Engine.
+Wenn jedoch gewisse Vorkenntnisse bestehen im Bereich Spieleentwicklung, dann wird ein  
+
+\section{Community und Ressourcen} 
+Die Zugänglichkeit von Dokumentation, Foren und Tutorials ist in diesem Kontext extrem wertvoll, da vor allem die Kombination daraus ein tiefes Verständnis einbringen kann. Wenn also die Dokumentation nicht verständlich sein sollte oder es nicht genug Anwendungsbeispiele im Internet geben sollte, kann es den Lernaufwand zusätzlich erhöhen oder zu Missverständnissen kommen.
+
+\section{Netcode-Fähigkeiten}
+Wenn also "out of the box" Features gut integriert und dokumentiert sind, die die Weiterentwicklung geplanter Netcode-Mechaniken erleichtern, ist dies der Idealzustand. 
+Dennoch ist für diese Arbeit eine Abgrenzung zu machen, da die Eigenimplementierung im Mittelpunkt steht. Wenn also Mechanismen von der Engine bereits zum Großteil gestellt sind und der Quellcode hiervon nicht anpassbar ist, wirkt sich dies eher negativ auf die Bewertung aus.
+
+\section{Performance}
+Wie gut das Spiel im Einsatz von mehreren Clients läuft und wie viele Einbuße in diesem Fall der Multiplayer-Aspekt mit sich bringt. Sollte dies jedoch garnicht mehr möglich sein, dass ein Editor und ein oder mehrere Clients verbunden sind - was im Grunde das Laufen von drei Spielinstanzen darstellt - nicht funktionieren sollte, weil keine Ressourcen mehr auf dem Computer übrig bleiben, ist dies wohl keine geeignete Engine oder man muss optimieren. 
+Allerdings kann eine graphische Grundvoraussetzung zum Problem werden. Wenn also die Engine durch die Natur der Renderpipeline zu sehr die GPU belastet, kann das schon das Prototyping beeinflussen, da in diesem Use Case eine hohe Framerate bevorzug ist.
+
+\section{Kosten und Lizenzmodell}
+Viele der bekannten Engines sind nicht Open Source sondern erwarten i.d.R. eine jährliche Zahlung oder eine Art Pacht~. In manchen Fällen ist eine jährliche Hochschullizenz möglich, dennoch fällt das somit immernoch unter die Kategrie der Zahlungspflicht. 
+Wenn eine Engine somit einen hohen monetären Einsatz erfordert ohne der Möglichkeit auch nur auf eine bspw. Testversion zuzugreifen, müssen die anderen Aspekte sehr viel gutmachen.
+\newpage
+
+\section{Programmiersprache}
+In vielen Fällen steht für den Entwickler ein hoher Lernaufwand mit einer noch zu erlernenden Programmiersprache, bei der neue Aspekte in den Mittelpunkt gerückt werden, die u.U. noch nicht zuvor behandelt wurden. In den meisten Fällen sind dies eher hardwarenähere Programmiersprachen wie bspw. C++. Hierbei müssen neue Konzepte wie der Umgang mit Memory erlernt und gemeistert werden, was im Umgang mit neueren Programmiersprachen wie C\# schon bereits gestellt ist. 
+Im Grunde stellt das nicht nur ein Risiko dar, sondern ist auf der anderen Seite auch eine Chance zu lernen, wie man richtig Spiele entwickelt und vor allem auch Quellcode optimieren kann. Nicht ohne Grund bauen die meisten Spiele-Engines auf C++ auf und werden in der Zukunft auch eher nicht ersetzt.  
+
+\section{Marktrelevanz}
+Die Marktrelevanz ist wie in {Programmiersprache} schon angesprochen, stark abhängig von der in der Engine genutzten Programmiersprache. Abgesehen davon gibt es unterschiedliche Einsatzbereiche verschiedener Engines und somit lässt sich die Marktrelevanz nicht nach absoluten Zahlen der Nutzter und oder bestimmter Spiele klären. Dennoch muss man die Relevanz der Engine im Auge behalten, wenn es also kaum Spiele auf dem Markt gibt, die mit einer bestimmten Engine entwickelt wurden, dann ist die potenziell investierte Zeit in einer beliebteren Engine wahrscheinlich angebrachter.
+
+
+%\begin{itemize}
+    %\item \textbf{Lernkurve}: Wie zugänglich ist die Engine für Entwickler mit unterschiedlichen Erfahrungsstufen? 
+    %\item \textbf{Community und Ressourcen}: Verfügbarkeit von Dokumentationen, Tutorials und aktiver Community.
+    %\item \textbf{Netcode-Fähigkeiten}: Wie gut lässt sich Multiplayer-Logik implementieren? 
+    %\item \textbf{Performance}: Optimierungsmöglichkeiten für verschiedene Plattformen, insbesondere im Multiplayer-Bereich.
+    %\item \textbf{Kosten und Lizenzmodell}: Wie gut zugänglich sind die einzelnen Produkte?
+    %\item \textbf{Programmiersprache}: Wie viel Zusatzaufwand fällt für den Entwickler zu seiner aktuellen Situation zusätzlich noch an? In einem Fall, dass eine hardwarenähere Sprache erlernt oder vertieft werden muss. Ein Beispiel wäre hierbei UE5 und C++: Es muss hierbei sehr viel an low level coding erlernt werden... 
+    %\item \textbf{Marktrelevanz}: Wie etabliert ist die Engine in der Spielebranche? 
+%\end{itemize}
+
+\newpage
+
+Ein direkter Vergleich der bekanntesten Engines zeigt folgende Eigenschaften:
+
+\begin{table}[H]
+\centering
+\caption{Vergleich populärer Spiel-Engines}
+{\small
+\begin{tabularx}{\textwidth}{|l|Y|Y|Y|}
+\hline
+\textbf{Kriterium} & \textbf{Unity} & \textbf{Unreal Engine} & \textbf{Godot} \\
+\hline
+Programmiersprache & C\# & C++ / Blueprints & GDScript / C\# \\
+\hline
+Lernkurve & Mittel & Hoch & Niedrig \\
+\hline
+Community & Sehr groß & Groß & Wächst schnell \\
+\hline
+Netcode & NGO, FishNet u.a. & Eigenes Replication-System & Drittanbieter, rudimentär \\
+\hline
+Performance & Gut (abhängig von Optimierung) & Sehr hoch & Mittel \\
+\hline
+Lizenz / Kosten & Kostenlos (eingeschränkt), Runtime Fee seit 2024 \cite{unitylicense} & Royalty-basiert \cite{unrealpricing} & Open Source \cite{godotdoc} \\
+\hline
+Verbreitung in Industrie & Sehr hoch & Hoch & Gering \\
+\hline
+\end{tabularx}
+}
+\end{table}
+
+\newpage
+Basierend auf den genannten Faktoren fiel die Wahl auf \textbf{Unity}, da diese Engine eine ausgewogene Kombination aus Zugänglichkeit, Flexibilität und Netcode-Erweiterbarkeit bietet. \\
+Besonders die Integration von C\# als Programmiersprache, die umfangreiche Dokumentation sowie die breite Community-Unterstützung waren ausschlaggebend.
+
+Unreal Engine hingegen spielt vor allem in der Entwicklung moderner, grafisch anspruchsvoller Spiele eine zentrale Rolle. Während Unity und Godot insbesondere im Indie-Bereich weit verbreitet sind, wird Unreal Engine regelmäßig für sogenannte AAA-Titel eingesetzt -- etwa bei \textit{Fortnite}, \textit{Valorant} oder der \textit{Gears of War}-Reihe. In Addition kommt noch eines der am meist antizipiertesten Spiele überhaupt dazu nämlich The Witcher 4 \cite{witcher-4-demo}. 
+
+Ein besonderes Beispiel für die Weiterentwicklung der Engine durch Eigengebrauch ist das Prinzip des „Dogfooding“. Epic Games nutzt die Unreal Engine intern intensiv zur Entwicklung eigener Spiele wie \textit{Fortnite}, wodurch neue Features -- etwa das Partikelsystem \textit{Niagara} -- direkt unter realen Produktionsbedingungen erprobt und optimiert werden \cite{dogfoodingexample}.
+
+Insbesondere mit der Einführung von Unreal Engine 5 (UE5) hat sich die Engine als Standardlösung für kleinere bis mittlere Studios etabliert, die auf fotorealistische Darstellung und moderne Grafiktechnologien wie \textit{Lumen} oder \textit{Path Tracing} setzen. Unity kann in diesen Bereichen zwar nicht vollständig mithalten, bietet jedoch im Kontext dieser Arbeit -- etwa bei der prototypischen Umsetzung netzwerkbasierter Mechaniken -- eine effizientere und zugänglichere Plattform. Beispiele wie \textit{BattleBit Remastered} (2023) jedoch zeigen, dass auch technisch reduzierte, aber netzwerkseitig ausgereifte Multiplayer-Titel mit Unity erfolgreich realisiert werden können.
+
+\section{Eigenimplementierung und Auswahl des Frameworks}
+
+
+Im Bereich Netcode existieren für Unity verschiedene Frameworks. Zunächst wurde Unitys offizielles \textbf{Netcode for GameObjects (NGO)} in Betracht gezogen. In der praktischen Erprobung zeigten sich jedoch Schwächen im zugrunde liegenden \textit{Tickmodell}. NGO nutzt ein festes Zeitraster zur Synchronisation zwischen Server und Clients, wobei alle Netzwerkaktionen strikt an die sogenannte \textit{NetworkTick}-Rate gebunden sind.
+
+Dieses Modell ist zwar grundsätzlich stabil, führt jedoch bei Spielen mit hoher Eingabefrequenz oder schnellen Bewegungsabläufen zu Einschränkungen: Eingaben, die zwischen zwei Ticks liegen, werden verzögert verarbeitet, was sich in Form von spürbarer Latenz oder schwankender Reaktionsgeschwindigkeit äußern kann. Besonders bei deterministisch kritischen Anwendungen erschwert dies eine präzise Umsetzung von Mechaniken wie Client-Side Prediction oder Server Reconciliation.
+
+
+Als Alternative wurde das Framework \textbf{FishNet} evaluiert, das in der offiziellen Dokumentation ausdrücklich für Anwendungsfälle mit hohen Anforderungen an Präzision und deterministische Logik empfohlen wird \cite{fishnetdocs}. FishNet nutzt ein eigenes Tick-basiertes Netzwerkmodell und bietet unter anderem:
+
+\begin{itemize}
+    \item Vollständige Kontrolle über Netzwerklogik
+    \item Support für Host-Modus, Dedicated Server und Peer-to-Peer
+    \item Integration mit Prediction, Interpolation und Authentifizierung
+\end{itemize}
+
+Trotz dieser technischen Vorteile wurde für diese Arbeit letztlich \textbf{NGO verwendet}. Hauptgrund war zum einen der geringere Integrationsaufwand und die direkte Unterstützung durch Unity. Eine vollständige Migration auf FishNet hätte umfangreiche Anpassungen erfordert, die im gegebenen Zeitrahmen nicht realisierbar gewesen wären.
+
+Zum anderen liegt der Schwerpunkt dieser Arbeit explizit auf dem \textbf{Verständnis und der eigenständigen Implementierung} zentraler Netcode-Mechaniken wie \textit{Client-Side Prediction}, \textit{Server Reconciliation} und \textit{Interpolation}. Statt auf bereits vollständig implementierte Framework-Funktionalitäten zurückzugreifen, wird ein eigenes, leichtgewichtiges System entwickelt, um die Funktionsweise dieser Konzepte praktisch und nachvollziehbar umzusetzen.
+
+NGO wird hierbei vor allem als \textit{Basisschicht} für die Netzwerkkommunikation genutzt, während zentrale Mechanismen unabhängig davon realisiert werden. Dieser Ansatz erlaubt eine tiefere Auseinandersetzung mit den zugrunde liegenden Prinzipien und Herausforderungen im Netcode-Design.
