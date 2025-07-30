@@ -13,18 +13,30 @@ Die vorliegende Arbeit beschäftigt sich mit den theoretischen und technischen G
 Im Folgenden werden zunächst die Motivation und Zielsetzung der Arbeit erläutert. Anschließend wird der strukturelle Aufbau der Arbeit vorgestellt.
 
 \section{Motivation}
-In den meisten modernen Spielen ist oft ein Teil des Spiels als Mehrspieler ein kooperativer Teil des Spiels integriert. Diese Bereiche reichen von strategischen FPS, Survival-Spielen bis zu Rennspielen. In all diesen Spielen wird von den Spielern ein hoher Wert auf Genauigkeit und Funktionalität des Netcode-Systems verlangt.
-Diese Integration bringt oft sehr viele Herausforderungen, in manchen Fällen ist auch eine komplette Eigenimplementierung auf Grund der Komplexität von der Basis des Spiels nicht abzudenken. Viele Entwickler vor allem Indie-Entwickler, stellen wenn überhaupt einen Mehrspieler erst einmal hinten an, da eine ausgereifte Integration vor allem für Unerfahrene eine große Herausforderung werden kann. 
+Multiplayer-Komponenten sind aus modernen digitalen Spielen kaum mehr wegzudenken. Sowohl kompetitive als auch kooperative Mehrspieler-Modi sind in einer Vielzahl von Genres – von taktischen First-Person-Shootern über Survival-Games bis hin zu Rennspielen – zum Standard geworden. Mit dieser Entwicklung steigen auch die Anforderungen an die zugrunde liegenden Netcode-Systeme, insbesondere hinsichtlich Präzision, Konsistenz und Latenzkompensation.
 
-Im Bereich der AAA-Titel jedoch, kommt es immer häufiger zu Kritikäußerungen von Medien als auch Spielern. In vielen Fällen wird sich auf die kostensparenden Ansätze der Entwickler beziehungsweise der Publisher der Spiele bezogen, die sich für billigere und somit leistungsärmere Alternativen wie bspw. Server mit niedrigeren Tickraten entscheiden.
-In den letzten Jahren kam jedoch eine der kuriosesten Neuerungen in den Mainstream der strategischen FPS, nämlich sollte das Counter Strike 2 -- der direkte Nachfolger von CS:GO -- auf Grundlage eines Subtick-Systems implementiert werden, anstatt das altbewährte klassische Ticksystem zu verbessern und modernisieren.
-Das System existierte schon vor der Integration des beliebten FPS, dennoch wurde es nie konsequent oder erfolgreich integriert. 
-Subtick ist im Grunde ein eigenes Ticksystem zwischen Ticks, demnach ist jeder Input mit einem konkreten Timestamp versehen und soll rein theoretisch, zu genaueren und direkterem Spielgefühl führen.
-Beim Klassischen System werden Eingaben zwischen Ticks an den nächsten Tick delegiert, was Synchronisation zwischen Clients oft erschwert bzw. oft zu uneinheitlichen Erfahrungen fürht.
+Während große Entwicklerstudios in der Lage sind, umfangreiche Netzwerkinfrastrukturen zu realisieren, stellt der zuverlässige und performante Betrieb eines Netcodes für kleinere oder unabhängige Entwicklerstudios eine erhebliche Herausforderung dar. Die Komplexität entsprechender Systeme führt häufig dazu, dass Mehrspielerfunktionen nur rudimentär implementiert oder zugunsten anderer Spielmechaniken zurückgestellt werden.
 
-Demnach liegt die Frage nahe, ob es sich wirklich um ein Problem beim Entwickler handelt oder ein Problem, von maßloser Komplexität, die von so vielen Variablen abhängt, dass sie in keinem Fall zu perfektionieren ist.
-(Das könnte man auf jeden Fall ändern, war nur das erste was mir eingefallen ist).
+Auch bei großbudgetierten Produktionen bleibt die Qualität der Netzwerkmechanismen regelmäßig Gegenstand öffentlicher Kritik. Spielende bemängeln unter anderem sogenannte \emph{Desynchronisationen} (Desyncs), bei denen Spielerinteraktionen nicht konsistent übermittelt werden – etwa in Form von „Kill Trades“ oder dem sprichwörtlichen „Sterben um die Ecke“. Solche Phänomene sind Ausdruck komplexer zeitlicher und logischer Inkonsistenzen in der Server-Client-Kommunikation.
+
+Ein aktuelles Beispiel für einen alternativen technologischen Ansatz ist die Einführung eines sogenannten Subtick-Systems im Titel \emph{Counter-Strike 2}. Anstelle fester Tickintervalle sollen Eingaben auf Basis präziser Zeitstempel verarbeitet werden. Dieses Konzept verspricht eine höhere Eingabegenauigkeit und ein konsistenteres Spielerlebnis, wirft aber gleichzeitig Fragen zur tatsächlichen Wirksamkeit und Praxistauglichkeit solcher Systeme auf.
+
+Die hohe technische Komplexität sowie die Vielzahl konkurrierender Anforderungen machen deutlich, dass es sich bei Netcode-Systemen nicht um triviale Umsetzungen handelt. Vielmehr stellt sich die Frage, inwiefern es überhaupt möglich ist, eine universell optimale Lösung zu entwickeln – oder ob es sich um ein inhärent trade-off-basiertes System handelt, in dem stets zwischen Genauigkeit, Latenz, Stabilität und Ressourcenverbrauch abgewogen werden muss.
+
 \section{Zielsetzung}
 In dieser Arbeit sollen Netcode und darauf aufbauende Netcode Mechanismen auf theoretischer und praktischer Grundlage beleuchtet werden und in einem prototypischen Spiel integriert werden.
-Da die reine Umsetzung keinen großen akademischen Mehrwert bietet, sollen Strategien entworfen werden, die zur Visualisierung und damit hoffentlich der Verbesserung des Verständnisses der Mechaniken dienen.
+Da die reine Umsetzung keinen großen akademischen Mehrwert bietet, sollen Strategien entworfen werden, die zur Visualisierung und damit der Verbesserung des Verständnisses der Mechaniken dienen.
 Es sollen des weiteren verschiedene Szenarien untersucht werden, die auch von Idealbedingungen abweichen können.
+
+\section{Redraft}
+
+Multiplayer-Funktionalität ist in modernen Videospielen nahezu allgegenwärtig – sei es in Form kompetitiver Mehrspieler-Modi, kooperativer Spielvarianten oder persistenter Online-Welten. Titel aus unterschiedlichsten Genres – darunter strategische First-Person-Shooter, Survival-Spiele oder Rennsimulationen – stellen hohe Anforderungen an die Netzwerksynchronisation zwischen den Spielteilnehmern. Im Zentrum dieser Anforderungen steht ein performantes und präzises Netcode-System, das eine konsistente Spielerfahrung gewährleistet.
+
+Die technische Umsetzung eines solchen Systems bringt erhebliche Herausforderungen mit sich. Besonders kleinere Entwicklerstudios und Indie-Teams sehen sich oftmals gezwungen, auf Mehrspieler-Komponenten gänzlich zu verzichten oder diese stark zu reduzieren, da die Implementierung eines zuverlässigen Netcodes umfassende Kenntnisse in Bereichen wie Netzwerktechnologien, Latenzkompensation und Serverarchitektur erfordert.
+
+Auch bei großen Produktionen (AAA-Titeln) ist die Kritik an unzureichender Netcode-Qualität regelmäßig Gegenstand von Diskussionen in der Fachpresse und Community. Häufig wird dabei der Vorwurf laut, dass zur Kostenreduktion auf leistungsschwächere Infrastruktur – beispielsweise Server mit niedriger Tickrate – zurückgegriffen wird. Die daraus resultierenden Probleme wie asynchrone Spielerinteraktionen, sogenannte \emph{Desynchronisationen} (Desyncs), oder Phänomene wie das „Sterben um Ecken“ und \emph{Kill Trades} wirken sich spürbar negativ auf das Spielerlebnis aus.
+
+Ein prominentes Beispiel für die aktuelle Weiterentwicklung von Netcode-Systemen bietet \emph{Counter-Strike 2}, der Nachfolger von \emph{CS:GO}. Anstelle einer Modernisierung des klassischen Tick-basierten Modells wurde ein Subtick-System eingeführt, das Eingaben nicht mehr an feste Tickintervalle bindet, sondern mit präzisem Zeitstempel verarbeitet. Obwohl die Grundidee eines solchen Systems nicht neu ist, stellt die konsequente Umsetzung in einem Mainstream-Titel einen signifikanten technologischen Schritt dar. Ziel dieser Architektur ist eine verbesserte Präzision der Eingabeverarbeitung sowie eine höhere Synchronität zwischen Server und Client.
+
+Angesichts dieser Entwicklungen stellt sich die Frage, ob die oftmals kritisierte Qualität des Netcodes primär auf Entwicklungsentscheidungen zurückzuführen ist – oder ob es sich vielmehr um ein inhärent komplexes Problemfeld handelt, das durch eine Vielzahl technischer, ökonomischer und gestalterischer Faktoren beeinflusst wird und kaum in seiner Gesamtheit zu „perfektionieren“ ist.
+

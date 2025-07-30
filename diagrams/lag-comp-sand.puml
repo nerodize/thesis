@@ -1,0 +1,25 @@
+@startuml
+autonumber
+
+participant "Server" as S
+actor "Client" as C
+
+== Ziel bewegt sich ==
+S -> S : Zielposition aktualisieren
+S -> C : Neue Position des Ziels senden
+
+note right of C
+Client interpoliert Zielposition\nauf Basis vergangener Daten
+end note
+
+== Spieler feuert ==
+C -> S : Schussbefehl senden (mit Timestamp)
+S -> S : Rückblickende Prüfung:\nWar Ziel zum Zeitpunkt X im Fadenkreuz?
+
+alt Treffer erkannt
+    S -> S : Treffer registrieren
+else Kein Treffer
+    S -> S : Anfrage ignorieren
+end
+
+@enduml

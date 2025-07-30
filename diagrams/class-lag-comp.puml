@@ -1,0 +1,34 @@
+@startuml
+class Gun {
+    - gunData: GunData
+    - _playerCamera: Camera
+    - _timeSinceLastShot: float
+    + Shoot()
+    + ShootServerRpc(origin, direction, targetId, offset)
+    + ConfirmHitClientRpc()
+    + ConfirmLagCompHitClientRpc(targetId)
+}
+
+class Target {
+    + GetRewindPosition(time): Vector3
+    + Damage(amount: float)
+}
+
+class GunData {
+    + currentAmmo: int
+    + magazineSize: int
+    + fireRate: float
+    + maxDistance: float
+    + damage: float
+}
+
+class NetworkManager
+class Camera
+class NetworkObject
+
+Gun --> GunData
+Gun --> Camera : accesses
+Gun --> NetworkManager : uses
+Gun --> Target : communicates via RPC
+Target --> NetworkObject : inherits
+@enduml

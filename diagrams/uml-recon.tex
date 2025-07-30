@@ -1,0 +1,47 @@
+\textwidth 18.5cm
+\textheight 25.5cm
+\hoffset=-2.9cm
+\voffset=-2.9cm
+
+\sloppy
+\hyphenpenalty 10000000
+
+\begin{sequencediagram}
+
+\newthread{client}{Player Client}
+\newinst[2]{netcode}{Netcode Layer}
+\newinst[2]{server}{Server}
+\newinst[1]{logic}{Game Logic}
+
+% Client verarbeitet lokalen Input
+\begin{messcall}{client}{Input erfassen \& simulieren}{client}{}
+\end{messcall}
+
+% Client sendet Input an Server (über Netcode Layer)
+\begin{messcall}{client}{Input an Server senden}{netcode}{
+	\begin{messcall}{netcode}{Übertrage Input-Daten}{server}{
+		\begin{call}{server}{Input verarbeiten}{logic}{}
+		\end{call}
+		\begin{call}{server}{Neuen Zustand speichern}{logic}{Positionsvektor}
+		\end{call}
+	}
+	\end{messcall}
+}
+\end{messcall}
+
+% Server sendet autoritativen Zustand zurück
+\begin{messcall}{server}{Neuen Zustand an Client senden}{netcode}{
+	\begin{messcall}{netcode}{Zustand empfangen}{client}{}
+	\end{messcall}
+}
+\end{messcall}
+
+% Client prüft Abweichung
+\begin{call}{client}{Vergleiche mit lokalem Zustand}{client}{}
+\end{call}
+
+% Falls nötig: Reconciliation
+\begin{call}{client}{Rekonstruktion aus Input-Puffer}{client}{}
+\end{call}
+
+\end{sequencediagram}

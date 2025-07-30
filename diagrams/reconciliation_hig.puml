@@ -1,0 +1,16 @@
+@startuml
+participant Client
+participant Server
+
+== Client-Logik ==
+Client -> Server: Input Payload senden
+
+== Server-Logik ==
+Server -> Server: Bewegung simulieren
+Server -> Server: Zustand speichern
+
+== Synchronisation ==
+Server -> Client: Serverzustand senden
+Client -> Client: Position zurückspulen falls nötig
+
+@enduml

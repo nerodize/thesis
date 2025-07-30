@@ -1,0 +1,27 @@
+@startuml
+autonumber
+
+actor Gegner
+participant "Server" as S
+actor "Client" as C
+
+== Gegner tritt ins Sichtfeld ==
+Gegner -> S : Bewegungsdaten senden (Hälfte Gegner Ping)
+note right of S
+Server erhält Info, dass Gegner sichtbar ist
+end note
+
+S -> C : Sichtbarkeitsupdate senden (Hälfte Client Ping)
+note right of C
+Client interpoliert Bewegung, zeigt Gegner im Sichtfeld an
+end note
+
+== Spieler feuert ==
+C -> S : Feuereingabe senden (Hälfte meines Pings)
+note right of S
+Server prüft rückwirkend, ob Gegner sichtbar war → Lag Compensation
+end note
+
+S -> S : Treffer registrieren
+
+@enduml

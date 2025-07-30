@@ -1,0 +1,5 @@
+@startuml
+Alice -> Bob: Auth req
+Bob --> Alice: Auth resp
+
+@enduml

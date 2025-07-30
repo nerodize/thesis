@@ -1,11 +1,12 @@
 \chapter{Auswahl der Engine}
-Um die bestmöglichste und vor allem effizienteste Entwicklung des Spiels und der geplanten Netcode Mechanismen zu integrieren, ist also eine durchdachte Wahl der Spiel Engine extrem wichtig.
+Um die bestmöglichste und vor allem effizienteste Entwicklung des Spiels und der geplanten Netcode Mechanismen zu integrieren, ist also eine durchdachte Wahl der Spiel Engine wichtig.
 Da vor allem Zeit ein Engpass in einem ambitionierten Projekt, wäre es fatal, wenn auf Grund der Wahl der Engine kein Fortschritt gemacht werden kann. 
-Die wichtigsten Kriterien waren: 
+Die wichtigsten Kriterien werden im Folgenden aufgelistet.
 
 \section{Lernkurve}
 Eine der wichtigeren Aspekte bezieht sich auf die Lernkurve der Game Engine für den Entwickler. Wenn also eine Engine mit so viel Lernaufwand in Verbindung steht um überhaupt eine triviale Szene zum Laufen zu bekommen, dann ist diese wohlmöglich nicht die richtige Engine.
-Wenn jedoch gewisse Vorkenntnisse bestehen im Bereich Spieleentwicklung, dann wird ein  
+Im Anbetracht dieser Arbeit ist Zeit die wichtigste Ressource und darf somit nicht unterschätzt werden. Wenn somit Zeit gespart werden kann, indem man eine einsteigerfreundliche Engine lernen kann, ist das für die anstehende Entwicklungsarbeit ein Erfolg~. 
+Wenn jedoch gewisse Vorkenntnisse im Bereich Spieleentwicklung bestehen sollten, dann wird das Erlernen einer weiteren Engine, was mit viel duplikativem Wissen im Zusammenspiel steht, für wesentlich geringern Lernaufwand sorgen. Unter dieser Bedingun ist der Lernaufwand wiederum keine   
 
 \section{Community und Ressourcen} 
 Die Zugänglichkeit von Dokumentation, Foren und Tutorials ist in diesem Kontext extrem wertvoll, da vor allem die Kombination daraus ein tiefes Verständnis einbringen kann. Wenn also die Dokumentation nicht verständlich sein sollte oder es nicht genug Anwendungsbeispiele im Internet geben sollte, kann es den Lernaufwand zusätzlich erhöhen oder zu Missverständnissen kommen.
@@ -21,7 +22,6 @@ Allerdings kann eine graphische Grundvoraussetzung zum Problem werden. Wenn also
 \section{Kosten und Lizenzmodell}
 Viele der bekannten Engines sind nicht Open Source sondern erwarten i.d.R. eine jährliche Zahlung oder eine Art Pacht~. In manchen Fällen ist eine jährliche Hochschullizenz möglich, dennoch fällt das somit immernoch unter die Kategrie der Zahlungspflicht. 
 Wenn eine Engine somit einen hohen monetären Einsatz erfordert ohne der Möglichkeit auch nur auf eine bspw. Testversion zuzugreifen, müssen die anderen Aspekte sehr viel gutmachen.
-\newpage
 
 \section{Programmiersprache}
 In vielen Fällen steht für den Entwickler ein hoher Lernaufwand mit einer noch zu erlernenden Programmiersprache, bei der neue Aspekte in den Mittelpunkt gerückt werden, die u.U. noch nicht zuvor behandelt wurden. In den meisten Fällen sind dies eher hardwarenähere Programmiersprachen wie bspw. C++. Hierbei müssen neue Konzepte wie der Umgang mit Memory erlernt und gemeistert werden, was im Umgang mit neueren Programmiersprachen wie C\# schon bereits gestellt ist. 
@@ -47,33 +47,39 @@ Ein direkter Vergleich der bekanntesten Engines zeigt folgende Eigenschaften:
 
 \begin{table}[H]
 \centering
-\caption{Vergleich populärer Spiel-Engines}
+\caption{Vergleich populärer Spiel-Engines mit Gewichtung}
 {\small
-\begin{tabularx}{\textwidth}{|l|Y|Y|Y|}
+\begin{tabularx}{\textwidth}{|l|c|Y|Y|Y|}
 \hline
-\textbf{Kriterium} & \textbf{Unity} & \textbf{Unreal Engine} & \textbf{Godot} \\
+\textbf{Kriterium} & \textbf{Gewichtung} & \textbf{Unity} & \textbf{Unreal Engine} & \textbf{Godot} \\
 \hline
-Programmiersprache & C\# & C++ / Blueprints & GDScript / C\# \\
+Programmiersprache & 3 & C\# & C++ / Blueprints & GDScript / C\# \\
 \hline
-Lernkurve & Mittel & Hoch & Niedrig \\
+Lernkurve & 5 & Mittel & Hoch & Niedrig \\
 \hline
-Community & Sehr groß & Groß & Wächst schnell \\
+Community & 4 & Sehr groß & Groß & Wächst schnell \\
 \hline
-Netcode & NGO, FishNet u.a. & Eigenes Replication-System & Drittanbieter, rudimentär \\
+Netcode & 5 & NGO, FishNet u.a. & Eigenes Replication-System & Drittanbieter, rudimentär \\
 \hline
-Performance & Gut (abhängig von Optimierung) & Sehr hoch & Mittel \\
+Performance & 4 & Gut (abhängig von Optimierung) & Sehr hoch & Mittel \\
 \hline
-Lizenz / Kosten & Kostenlos (eingeschränkt), Runtime Fee seit 2024 \cite{unitylicense} & Royalty-basiert \cite{unrealpricing} & Open Source \cite{godotdoc} \\
+Lizenz / Kosten & 5 & Kostenlos (eingeschränkt), Runtime Fee seit 2024 \cite{unitylicense} & Royalty-basiert \cite{unrealpricing} & Open Source \cite{godotdoc} \\
 \hline
-Verbreitung in Industrie & Sehr hoch & Hoch & Gering \\
+Verbreitung in Industrie & 3 & Sehr hoch & Hoch & Gering \\
+\hline
+\textbf{Gesamtbewertung} & – & \textbf{–} & \textbf{–} & \textbf{–} \\
 \hline
 \end{tabularx}
 }
 \end{table}
 
+Die Quantifizierung wurde auf Grundlage einer Skala von 1-5 bewerkstelligt, wobei 5 das Maximum ist und somit am besten. Diese Werte dienen als Multiplikatoren mit den Werten (ebenfalls 1-5) der einzelnen Spalten. Beide Skalen sind subjektiv und sind somit auch stark von Vorkenntnissen abhängig. 
+Die einzelnen Spalten jedoch sind keine Gewichtungen sondern eher die tatsächlichen Werte, die vergeben wurden. 
+
+
 \newpage
 Basierend auf den genannten Faktoren fiel die Wahl auf \textbf{Unity}, da diese Engine eine ausgewogene Kombination aus Zugänglichkeit, Flexibilität und Netcode-Erweiterbarkeit bietet. \\
-Besonders die Integration von C\# als Programmiersprache, die umfangreiche Dokumentation sowie die breite Community-Unterstützung waren ausschlaggebend.
+Besonders die Integration von C\# als Programmiersprache, die umfangreiche Dokumentation sowie die breite Community-Unterstützung waren ausschlaggebend. Demnach ist Unity vor allem auch am einsteigerfreundlichsten, was im Endeffekt Komplexität reduziert.
 
 Unreal Engine hingegen spielt vor allem in der Entwicklung moderner, grafisch anspruchsvoller Spiele eine zentrale Rolle. Während Unity und Godot insbesondere im Indie-Bereich weit verbreitet sind, wird Unreal Engine regelmäßig für sogenannte AAA-Titel eingesetzt -- etwa bei \textit{Fortnite}, \textit{Valorant} oder der \textit{Gears of War}-Reihe. In Addition kommt noch eines der am meist antizipiertesten Spiele überhaupt dazu nämlich The Witcher 4 \cite{witcher-4-demo}. 
 
@@ -83,13 +89,12 @@ Insbesondere mit der Einführung von Unreal Engine 5 (UE5) hat sich die Engine a
 
 \section{Eigenimplementierung und Auswahl des Frameworks}
 
+Im Bereich Netcode existieren für Unity verschiedene Frameworks. Zunächst wurde Unitys offizielles \textbf{Netcode for GameObjects (NGO)} in Betracht gezogen. NGO ist mit Netcode for Entities der Standard und das als eigenes Paket, welches man über den Package Manager installieren kann.   In der praktischen Erprobung zeigten sich jedoch Schwächen im zugrunde liegenden \textit{Tickmodell}. NGO nutzt ein festes Zeitraster zur Synchronisation zwischen Server und Clients, wobei alle Netzwerkaktionen strikt an die sogenannte \textit{NetworkTick}-Rate gebunden sind.
 
-Im Bereich Netcode existieren für Unity verschiedene Frameworks. Zunächst wurde Unitys offizielles \textbf{Netcode for GameObjects (NGO)} in Betracht gezogen. In der praktischen Erprobung zeigten sich jedoch Schwächen im zugrunde liegenden \textit{Tickmodell}. NGO nutzt ein festes Zeitraster zur Synchronisation zwischen Server und Clients, wobei alle Netzwerkaktionen strikt an die sogenannte \textit{NetworkTick}-Rate gebunden sind.
+Dieses Modell ist zwar grundsätzlich stabil, führt jedoch bei Spielen mit hoher Eingabefrequenz oder schnellen Bewegungsabläufen zu Einschränkungen: Eingaben, die zwischen zwei Ticks liegen, werden verzögert verarbeitet, was sich in Form von spürbarer Latenz oder schwankender Reaktionsgeschwindigkeit äußern kann. Besonders bei deterministisch kritischen Anwendungen erschwert dies eine präzise Umsetzung von Mechaniken wie Client-Side Prediction oder Server Reconciliation. 
+Hierfür müsste ein Ticksystem selbst implementiert werden, was je nach Architektur zu Kollisionen führen kann.
 
-Dieses Modell ist zwar grundsätzlich stabil, führt jedoch bei Spielen mit hoher Eingabefrequenz oder schnellen Bewegungsabläufen zu Einschränkungen: Eingaben, die zwischen zwei Ticks liegen, werden verzögert verarbeitet, was sich in Form von spürbarer Latenz oder schwankender Reaktionsgeschwindigkeit äußern kann. Besonders bei deterministisch kritischen Anwendungen erschwert dies eine präzise Umsetzung von Mechaniken wie Client-Side Prediction oder Server Reconciliation.
-
-
-Als Alternative wurde das Framework \textbf{FishNet} evaluiert, das in der offiziellen Dokumentation ausdrücklich für Anwendungsfälle mit hohen Anforderungen an Präzision und deterministische Logik empfohlen wird \cite{fishnetdocs}. FishNet nutzt ein eigenes Tick-basiertes Netzwerkmodell und bietet unter anderem:
+Als Alternative wurde das Framework \textbf{FishNet} in Betracht gezogen, das in der offiziellen Dokumentation ausdrücklich für Anwendungsfälle mit hohen Anforderungen an Präzision und deterministische Logik empfohlen wird \cite{fishnetdocs}. FishNet nutzt ein eigenes Tick-basiertes Netzwerkmodell und bietet unter anderem:
 
 \begin{itemize}
     \item Vollständige Kontrolle über Netzwerklogik
@@ -98,6 +103,9 @@ Als Alternative wurde das Framework \textbf{FishNet} evaluiert, das in der offiz
 \end{itemize}
 
 Trotz dieser technischen Vorteile wurde für diese Arbeit letztlich \textbf{NGO verwendet}. Hauptgrund war zum einen der geringere Integrationsaufwand und die direkte Unterstützung durch Unity. Eine vollständige Migration auf FishNet hätte umfangreiche Anpassungen erfordert, die im gegebenen Zeitrahmen nicht realisierbar gewesen wären.
+Fishnet nutzt somit oft auch eine andere Syntax, die nicht so weit verbreitet ist wie der Standard von Unity's NGO. Dies macht die Fehlerbehebung komplizierter und führt vor allem bei Netcode-Unerfahrenen zu Komplikationen.  
+In der Dokumentation ist ebenfalls nichts zur Portierung von NGO auf Fishnet enthalten, was die Umstellung deutlich aufwändiger und zeitlich bedingt riskanter machen würde. Hierfür wäre sogar ein kompletter Umbau nötig und selbst damit könnte Erfolg nicht garantiert sein. 
+Abgesehen davon, ist Fishnet sehr reich an Features, die über die Mindestanforderungen hinausgehen. In jedem anderen Use Case wäre Fishnet wohl die beste Entscheidung, weil es die sinnvollste und beste Vorablösung bereitstellt, dessen Umbau jedoch in keinster Weise trivial ist.
 
 Zum anderen liegt der Schwerpunkt dieser Arbeit explizit auf dem \textbf{Verständnis und der eigenständigen Implementierung} zentraler Netcode-Mechaniken wie \textit{Client-Side Prediction}, \textit{Server Reconciliation} und \textit{Interpolation}. Statt auf bereits vollständig implementierte Framework-Funktionalitäten zurückzugreifen, wird ein eigenes, leichtgewichtiges System entwickelt, um die Funktionsweise dieser Konzepte praktisch und nachvollziehbar umzusetzen.
 

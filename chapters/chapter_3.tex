@@ -1,17 +1,19 @@
-\chapter{Beschreibung des Unity Prototyps}
+\chapter{Beschreibung des Unity Prototypen}
+\label{chapter_3}
 
-Der entwickelte Prototyp  bildet eine einfache First-Person-Shooter-Sandbox ab und dient als Testumgebung für die Untersuchung netzwerkbezogener Mechaniken wie Interpolation, Client-Side Prediction und Lag Compensation. Der Prototyp wird auch zum Abschluss der Arbeit bewusst schlicht gehalten, da der Fokus auf der Netzwerkschicht liegt – nicht auf grafischen oder animationsbasierten Aspekten. Texturen, Beleuchtung und Animationen wurden daher nur in minimalem Umfang berücksichtigt.
-Im Verlauf der Arbeit existieren prinzipiell zwei Versionen, bei denen es sich zum einen um die Grundstruktur des Spiels gekümmert werden musste, was demnach den Offline-Prototypen darstellt. Diese Version besteht aus fundamentalen aber auch sehr schlicht gehaltenen Bestandteilen für ein FPS-Spiel. Diese bestehen aus einem Character Controller mit dem man springen und laufen kann und einer Waffe in First-Person-Ansicht, die über eine Schuss- und Nachlademechanik verfügt. 
+Der entwickelte Prototyp  bildet eine einfache First-Person-Shooter-Sandbox ab und dient als Testumgebung für die Untersuchung netzwerkbezogener Mechaniken wie Interpolation, Client-Side Prediction mit Reconciliation und Lag Compensation. Der Prototyp wird auch zum Abschluss der Arbeit bewusst schlicht gehalten, da der Fokus auf der Netzwerkschicht liegt – nicht auf grafischen oder animationsbasierten Aspekten. Texturen, Beleuchtung und Animationen wurden daher nur in minimalem Umfang berücksichtigt.
+Im Verlauf der Arbeit existieren prinzipiell zwei Versionen, bei denen es sich zum einen um die Grundstruktur des Spiels handelt, was demnach den Offline-Prototypen darstellt. Diese Version besteht aus fundamentalen aber auch sehr schlicht gehaltenen Bestandteilen für ein FPS-Spiel. Diese bestehen aus einem Character Controller, mit dem man springen und laufen kann und einer Waffe in First-Person-Ansicht, die über eine Schuss- und Nachlademechanik verfügt. 
 Ein Schadensmodell, das als Metadaten den einzelnen Waffen zugewiesen werden kann und das alles auf einer minimalistischen Prototyp-Map.
 Auf diesem Prototypen anknüpfend, sollen und wurden besagte Netcode-Mechaniken inklusive Synchronisation integriert werden.   
 
 \newpage
 \section{Szenario und Spiellogik}
-Die Umgebung erinnert an Aim-Trainingsszenarien aus Spielen wie \textit{Valorant} (Range) oder eigenständigen Tools wie \textit{Aim Lab}. Der Spieler wird durch einen FPS-Controller dargestellt, der als \texttt{Prefab} implementiert ist. In der Szene bewegen sich ein oder mehrere Zielobjekte (Targets), die sich zufällig und unvorhersehbar über das Spielfeld bewegen. Diese Targets können wiederholt erscheinen (respawnable) und dienen im späteren Verlauf zur Untersuchung netzwerkbedingter Bewegungsartefakte.
-Zusätzlich können sich mehrere Clients auf den Server verbinden und sollen synchronisiert werden. Hierbei geht es darum Inputlatenz auch bei hohem Ping minimal zu halten und ein flüssiges und direktes Spielgefühl zu erlauben auch bei hoher Latenz.
+Die Umgebung erinnert an Trainingsszenarien aus Spielen wie \textit{Valorant - The Range} \cite{Range} oder Tools wie \textit{Aim Lab} \cite{aimlabs}. Der Spieler wird durch einen FPS-Controller dargestellt, der als \texttt{Prefab} implementiert ist. In der Szene bewegen sich ein oder mehrere Zielobjekte (Targets), die sich zufällig und unvorhersehbar über das Spielfeld bewegen. Diese Targets können wiederholt erscheinen (respawnable) und dienen im späteren Verlauf zur Untersuchung netzwerkbedingter Bewegungsartefakte.
+Zusätzlich können sich mehrere Clients auf den Server verbinden und sollen synchronisiert werden. Hierbei geht es darum Inputlatenz auch bei hohem Ping minimal zu halten und ein flüssiges und direktes Spielgefühl zu erlauben. Dies ist der Kern von modernen Netcodeverfahren und somit auch die Kernproblematik, da man hier den Kompromiss wählt, den Client in seiner Eingabe zu priorisieren und somit alles was dadurch an Nebenwirkungen entsteht im Nachhinein glätten zu müssen.
 
-
+Ein Game Loop im klassischen Sinne existiert nicht, es ist also kein Spiel das einen Abschluss findet. Der Kern ist die Visualisierung der Netcode-Mechaniken und macht einen Game Loop also den strukturierten Ablauf eines Spiels hinfällig. Das Spiel kann gestartet werden indem ein Build über den Unity Editor gestartet wird und es kann unter anderem über die Konsole mit dem Befehl: disconnect verlassen werden.
 \section{Waffenmechanik und Spielgefühl}
+\label{gamefeel}
 Für das Waffenmodell wurde ein Asset aus dem Unity Asset Store verwendet\footnote{Platzhalter: \textit{Name des Assets einfügen}}, da die Eigenmodellierung in Blender aus zeitlichen Gründen verworfen wurde. Dennoch wurden grundlegende FPS-typische Elemente integriert:
 
 \begin{itemize}
@@ -19,25 +21,60 @@ Für das Waffenmodell wurde ein Asset aus dem Unity Asset Store verwendet\footno
   \item Bewegungsbasiertes Waffenbobbing und Sway
   \item Mündungsfeuer (Muzzle Flash)
   \item Einschusslöcher (Decals)
+  \item Treffermarkierung (visuell und auditiv)
 \end{itemize}
 
 Diese Features verbessern nicht nur das Spielgefühl, sondern sind auch eine wichtige Grundlage für die spätere visuelle Analyse der Netzwerkmechaniken. Die Netzwerksynchronisation solcher Effekte gilt als nicht trivial und ist auch in professionellen Produktionen fehleranfällig und wird demnach ebenfalls ausgelassen.
-Spielerobjekte werden in Unity meistens über ein eigenes Network-Transform synchronisiert, welches in der Regel hauptsächlich nur Für die Position des jeweiligen Transforms zuständig ist. Wenn also Einschusslöcher synchronisiert werden müssen oder Animationen bzgl. der Waffen muss dies auf anderer Ebene entstehen was auch zu Kollisionen mit dem bereits verwendetem Network Transform. 
+Spielerobjekte werden in Unity meistens über ein eigenes Network-Transform synchronisiert, welches in der Regel nur Für die Position des jeweiligen Transforms zuständig ist. Wenn also Einschusslöcher synchronisiert werden, müssen Animationen bzgl. der Waffen auf anderer Ebene hierarchischer Ebene entstehen was auch zu Kollisionen mit dem bereits verwendetem Network Transform führen kann.
+
+Im Bezug auf der Trefferregistrierung, die ein essentieller Bestandteil von Multiplayer Spielen sind. In allen Fällen wird dies unter der Haube in Kommunikation von Clients und Server mittels Remote Procedure Calls getätigt, sodass hier im Idealfall eine Trefferbestätigung an den Client zurückgeliefert wird. Bei hohem Ping ist das jedoch problematisch und führt oft zu extremen Verzögerungen, die nicht nur sehr auffallend sondern auch behindernd sein können. In Vielen Fällen kommt hierbei noch visuelles und auditives Feedback für den Spieler also den betrfoffenen Client in Form von Hitmarkern dazu. Hitmarker oder Treffermarkierungen kommen häufig in eher im Bereich von Gelegenheitsspielen vor um den Spieler ein besseres Feedback zu gewährleisten, ob denn überhaupt ein Schuss registriert wurde. 
+In den meisten Fällen ist dieses Feature nicht mit Rückkopplung an den Server gebunden sondern ausschließlich vom Client abhängig um nicht gegen das Prinzip der direkten Eingabe zu verstoßen (Client Side Prediction). Das kann wiederum je nach Umsetzung auch zum Verhängnis werden, wenn nämlich fälschlich erkannte Treffererkennung stattfindet. Dieses besagte Phänomen lässt sich gut in Spielen wie CS2 beobachten, in dem man dieses Feature: "Damage Prediction" variabel aktivieren kann. 
+
+Das vorgestellte Szenario verwendet jedoch keinerlei Damage Prediction beim Treffer, sondern wartet gegensetzlich der Norm auf die Trefferbestätigung vom Server um entscheidende Mechanismen besser zu demonstrieren. (vielleicht nicht so smart)
 
 \section{Technische Herausforderung: Raycasting}
-Ein zentrales technisches Problem ergab sich bei der Definition des Ursprungs der Schusslinie (Raycast). Zwei gängige Ansätze wurden gegenübergestellt:
+Ein zentrales technisches Problem liegt bei der Definition des Ursprungs der Schusslinie (Raycast). Diese Thematik betrifft nicht nur die Handhabung im Zusammenspiel mit Netcode sondern auch aktiv den Game Loop, sollten mehrere Waffenmodelle im Spiel sein. 
+
+Zwei gängige Ansätze wurden gegenübergestellt:
 
 \begin{enumerate}
   \item Raycast vom Lauf der Waffe (Mündung)
   \item Raycast aus dem Zentrum der Kamera (Fadenkreuz)
 \end{enumerate}
 
-Für den Prototyp wurde Variante 2 gewählt, da diese Methode eine konsistentere Treffergenauigkeit gewährleistet und im Hinblick auf Debugging und Netzwerkanalyse einfacher zu handhaben ist.
+Für den Prototyp wurde Variante 2 gewählt, da diese Methode eine konsistentere Treffergenauigkeit gewährleistet und im Hinblick auf Debugging und Netzwerkanalyse einfacher zu handhaben ist. Aus diesen Gründen wird dieser Ansatz auch bei der Entwicklung größerer Spiele - vor allem Spiele, die Hit Scan implementieren - präferiert. 
 
 \section{Netzwerkarchitektur des Prototypen}
-Der Prototyp basiert auf dem \textit{Netcode for GameObjects}-Framework von Unity und nutzt ein Server-Client-Modell. Clients werden über den Unity-Build gestartet und mit einem lokalen Server verbunden. Netzwerkkomponenten wie Zustandsübertragung und Objektregistrierung erfolgen aktuell noch über Unitys \texttt{NetworkTransform}-Komponente.
+\label{Netzwerkarchitektur}
+Der Prototyp basiert auf dem \textit{Netcode for GameObjects}-Framework von Unity und nutzt ein Server-Client-Modell. Clients werden über den Unity-Build gestartet und mit einem lokalen Server verbunden. Netzwerkkomponenten wie Zustandsübertragung und Objektregistrierung erfolgen über Unity's \texttt{NetworkTransform}-Komponente.
 
-Diese Komponente erlaubt eine schnelle Prototypenerstellung, übernimmt jedoch automatisch Funktionen wie Interpolation und Zustandssynchronisation. Für die Zwecke dieser Arbeit ist dies ungeeignet, da keine gezielte Kontrolle oder Analyse der einzelnen Netzwerkmechanismen möglich ist. 
+Diese Komponente erlaubt eine schnelle Prototypenerstellung, kann jedoch automatisch Funktionen wie Interpolation und Zustandssynchronisation übernehmen. Im Kontext dieser Arbeit ist das nicht ideal, da viel Eigenkontrolle über alle Mechaniken herrschen sollen und somit eine Architur benutzt werden muss, die stark vomn Network Transform abhängt. 
+In Abwägung im Bezug auf Architektur und Mehraufwand ist der Network Transfrom zumindest im Bereich der Spielerbewegung sinnvoller, da sonst noch mehr unvorhersehbare Variablen und Komplexität beim Entwicklen und Debugging entstehen.  
+
+Die verwendete Architektur ist jedoch zu unterteilen in zwei Bereiche, die bewusst voneinander getrennt wurden. Zum einen handelt es sich bei First Person Shootern um Spielerbewegungsmechaniken, die sehr entscheidend sind beim Synchronisieren und Kompensieren von Netzwerkzuständen. Dies ist eng verbunden mit der Schussmechanik und dessen Schussregistierung, da vor allem bei sich bewegenden Zielen insbesondere Spielern, sehr viele Abhängigkeiten entsehen und viel auf geteilte Payloads zugegriffen wird und werden muss.
+Da in diesem Szenario keine PvP (Player versus Player) vorgesehen war und ist, wird auf diese zusätzliche Komplexität verzichtet und eine getrennte, etwas schlichtere Architektur verwendet. Hierbei sollen jediglich bei der Schussregistrierung, bei den vom Server gesteuertem Target, Netzwerkmechanismen repliziert werden.
+Aufgrund des grundlegende Unterschiedes, dass es sich hier um ein Serverobjekt handelt und kein Clientobjekt, verfällt hierbei die Komplexität die durch die Trivialisierung in der Netzwerkschicht Zustande kommt. 
+In diesem Fall müssen somit Pakete nur vom Client zum Server und vom Server zum Client gesendet werden, ~was im Grunde zu einer Halbierung der theoretischen Latenz führt. 
+Somit handelt es sich hierbei um kein System, dass hohe Einsatzrelevanz in echten PvP Spielen hat, kann aber im Rahmen dieser Arbeit die Mechaniken veranschaulichen. (hier nochmal schauen, ob man das nicht besser hinbekommt).
+
+\section{Analysewerkzeuge für Netcode und Debugging}
+Zur Untersuchung netzwerkbasierter Spielmechaniken wie Client-Side Prediction, Lag Compensation oder Interpolation ist der Einsatz geeigneter Analysewerkzeuge essenziell. Ziel ist es, sowohl das Verhalten dieser Mechaniken unter verschiedenen Bedingungen zu verstehen, als auch deren Einfluss auf das Spielgefühl sichtbar und messbar zu machen.
+
+Im Rahmen dieser Arbeit soll ein System verwendet werden, bestehend aus einem Debug-Overlay und einer integrierten Ingame-Konsole. Dieses Werkzeug ermöglicht es, netzwerkrelevante Parameter -- wie beispielsweise Interpolationszeiten, künstliche Latenz oder Glättungsalgorithmen -- zur Laufzeit zu verändern. Alternativ wird dies nach herkömmlichem Ablauf über Netzwerkvariablen im Unity-Editor  \\
+So lassen sich spezifische Szenarien gezielt nachstellen und deren Auswirkungen visuell nachvollziehen.
+
+Neben dieser Eigenentwicklung existieren auch externe Lösungen, wie etwa der Unity Profiler mit Netcode-Unterstützung oder Werkzeuge von Drittanbietern wie Photon Fusion Analyzer \cite{} (könnte sein, dass das hier kompletter bs ist). Diese bieten detaillierte technische Einblicke, sind jedoch oft nicht für eine interaktive Analyse innerhalb des Spiels ausgelegt.  
+
+Für die Konsole, die auch in Spielen wie Counter Strike oder anderen Spielen existiert um ohne Benutzeroberfläche Einstellungen zu ändern, wird hier aus dem Unity Asset Store bezogen. \cite{}
+Mit diesem Asset lassen sich Konsolen-Kommandos im Quellcode registrieren, die den Spielfluss manipulieren können. Außerdem ist auch das Auslesen der Debugging-Konsole möglich wenn man im Build ist, welcher keine integrierte Konsole besitzt wie der normale Editor.
+
+Das entwickelte Debug-System hingegen erlaubt eine tiefere Integration in den Entwicklungsprozess: Es zeigt Zustände wie die aktuelle Netzwerkverzögerung, Tick-Synchronisation oder Prediction-Fehler direkt im Spiel an. Ergänzend dazu erlaubt die Konsole das Aktivieren und Deaktivieren einzelner Netcode-Komponenten oder das dynamische Nachjustieren von Parametern -- ohne das Spiel neu starten zu müssen.
+
+Durch diese Flexibilität ist das System besonders geeignet für die iterative Entwicklung und Bewertung von Netcode-Strategien und stellt daher das zentrale Analysewerkzeug dieser Arbeit dar.
+
+
 
 \subsection{Ausblick:}
 In den kommenden Entwicklungsschritten soll die \\ \texttt{NetworkTransform}-Komponente teilweise durch eine eigene Implementierung ersetzt werden, um die Funktionsweise und Auswirkungen von Interpolation, Prediction, Reconciliation und Lag Compensation explizit untersuchen und visualisieren zu können.
+Hierbei werden die einzelnen Arbeitschritte und Methoden zur Umsetzung dieser Visualisierung Anhand von Quellcode und nötigen Schritten innherhalb des Unity Editors gezeigt. 
+

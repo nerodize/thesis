@@ -1,17 +1,229 @@
-\chapter{Analysewerkzeuge für Netcode und Debugging}
+\chapter{Aufbau der Spielmechaniken}
+Für das Verständnis der später eingesetzten Netcode-Mechaniken ist eine vorherige Erläuterung der implementierten Spielmechaniken unerlässlich. Diese Spielmechaniken sind von besonderer Bedeutung, da sie in engem Zusammenhang mit den Netzwerkfunktionen stehen, die im weiteren Verlauf behandelt werden. Das Spiel verfügt über die grundlegenden Funktionalitäten eines klassischen FPS-Titels; so kann der Spieler beispielsweise:
 
-Zur Untersuchung netzwerkbasierter Spielmechaniken wie Client-Side Prediction, Lag Compensation oder Interpolation ist der Einsatz geeigneter Analysewerkzeuge essenziell. Ziel ist es, sowohl das Verhalten dieser Mechaniken unter verschiedenen Bedingungen zu verstehen, als auch deren Einfluss auf das Spielgefühl sichtbar und messbar zu machen.
+\begin{itemize}
+    \item Laufen und springen
+    \item Mit einer Waffe schießen und diese nachladen 
+    \item Ein beweglich Ziel zerstören
+\end{itemize}
 
-Im Rahmen dieser Arbeit soll ein System verwendet werden, bestehend aus einem Debug-Overlay und einer integrierten Ingame-Konsole. Dieses Werkzeug ermöglicht es, netzwerkrelevante Parameter -- wie beispielsweise Interpolationszeiten, künstliche Latenz oder Glättungsalgorithmen -- zur Laufzeit zu verändern. Alternativ wird dies nach herkömmlichem Ablauf über Netzwerkvariablen im Unity-Editor  \\
-So lassen sich spezifische Szenarien gezielt nachstellen und deren Auswirkungen visuell nachvollziehen.
+Die erwähnten Bestandteile sind somit erweiterbar und stellen ein Grundgerüst von Funktionalitäten dar. Es können modular Waffenmodelle hinugefügt und mit weiteren Spiel\-mechaniken ergänzt werden. 
 
-Neben dieser Eigenentwicklung existieren auch externe Lösungen, wie etwa der Unity Profiler mit Netcode-Unterstützung oder Werkzeuge von Drittanbietern wie Photon Fusion Analyzer. Diese bieten detaillierte technische Einblicke, sind jedoch oft nicht für eine interaktive Analyse innerhalb des Spiels ausgelegt.
+\section{Bewegung}
+Die Art und Weise, wie sich ein Spieler im Spiel bewegen kann, ist von grundlegender Bedeutung für die Wahrnehmung und das Spielerlebnis. Wenn bspw. eine zu hohe Bewegungsgeschwindigkeit implementiert ist, fühlt sich das Spiel unter anderem nicht realistisch an.
+Eine zu statische Kamera kann bei Spielerbewegung ebenfalls zu einem unechten Spielgefühl beitragen. Wenn also bei Spielerbewegung keinerlei Bewegung in der Waffenführung erkenntlich ist, wird auch je nach Spielfeld keine konkrete Bewegung wargenommen.
+Um das zu unterbinden ist für den Spieler clientseitge Waffenbewegung implementiert, die sich bei Rotation durch Mausbewegung und Laufbewegung erkenntlich macht. Hierbei handelt es sich um Gun Bobbing, was in leichter Form beim Stehen auftritt und in stärker Form beim Laufen. Außerdem gibt es noch die Waffenrotation, die beim Zielen (\ref{Mausbewegung}) erkenntlich ist.
 
-Für die Konsole, die auch in Spielen wie Counter Strike oder anderen Spielen existiert um ohne Benutzeroberfläche Einstellungen zu ändern, wird hier aus dem Unity Asset Store bezogen. \cite{}
-Mit diesem Asset lassen sich Konsolen-Kommandos im Quellcode registrieren, die den Spielfluss manipulieren können. Außerdem ist auch das Auslesen der Debugging-Konsole möglich wenn man im Build ist, welcher keine integrierte Konsole besitzt wie der normale Editor.
+Maus- und Tastatureingaben werden in Unity separat ausgewertet, erfüllen jedoch gemeinsam den Zweck, die Bewegung des Spielers zu steuern. Die horizontale Rotation der Spielfigur über die Maus ermöglicht eine präzise Bestimmung der Blick- und Bewegungsrichtung und kann – ähnlich wie beim Autofahren das Lenkrad in Kombination mit dem Gaspedal – als zentrales Steuerelement für die Navigation betrachtet werden.
 
-Das entwickelte Debug-System hingegen erlaubt eine tiefere Integration in den Entwicklungsprozess: Es zeigt Zustände wie die aktuelle Netzwerkverzögerung, Tick-Synchronisation oder Prediction-Fehler direkt im Spiel an. Ergänzend dazu erlaubt die Konsole das Aktivieren und Deaktivieren einzelner Netcode-Komponenten oder das dynamische Nachjustieren von Parametern -- ohne das Spiel neu starten zu müssen.
+Die Tastatureingaben werden nicht durch hartcodierte Tastenabfragen realisiert, sondern über einen von Unity bereitgestellten \textit{Input Reader} verarbeitet. Dieses abstrahierte Input-Handling-System erlaubt es, Tastenbelegungen flexibel im Unity-Editor festzulegen und im Code darauf zuzugreifen. Dies bringt insbesondere Vorteile im Zusammenhang mit Netcode-Mechanismen, da Eingaben so leichter serialisiert und für den Netzwerktransfer vorbereitet werden können. Darüber hinaus erleichtert es die Erweiterung auf alternative Eingabegeräte wie Controller oder Touch-Eingaben, ohne die interne Logik anpassen zu müssen.
 
-Durch diese Flexibilität ist das System besonders geeignet für die iterative Entwicklung und Bewertung von Netcode-Strategien und stellt daher das zentrale Analysewerkzeug dieser Arbeit dar.
+(hier Abbildung zum Input Reader vielleicht).
+
+\subsection{Funktionsweise der Bewegung}
+Die reine Bewegung durch die Richtungstasten "WASD" werden mit einer einzelnen Funktion verarbeitet, die einen Eingabevektor als Parameter nimmt. 
+Abgesehen von den Richtungseingaben setzt die Funktion auch Gravitationslogik um, hierbei also jediglich das Springen und das Fallen des Spielers. Dazu sind in Unity bestimmte Game-Objects also Teile des Spielfelds als Ground Layer deklariert, was für den Spieler als betretbare Fläche gilt. 
+Hierzu bietet sich an in der Hierarchie den gesamten Spielbereich als Ground-Layer zu deklarieren, was nicht in jedem Fall gewollt ist, da man in manchen Fällen nicht die Fähigkeit besitzen sollte, auf bestimmten Objekten zu stehen. Hierzu wird eine neue Layer erstellt und der gesamte oder nur Teile des Environment-Containers mit dem \textit{Ground}-Tag markiert.
+
+(Screenshot hierzu, Text u.U. auch ausbaufähig)
+
+Diese Schicht oder Ground-Layer ist im Code explizit als SerialzeField annotiert und kann somit im Inspector per drag and drop, als Referenz im jeweiligen Skript zugewiesen werden. Zuzüglich gibt es eine weitere Variable, die eine konkrete Fläche abbildet und als Transform verwendet wird. Diese Fläche ist nötig, um den Abstand vom Spieler zum Boden zu berechnen und den Grounded-State zu beurteilen und zu verwalten. Dieser State ist ein Zustand den der Speieler hat, wenn er sich nicht in der Luft befindet und somit Kontakt zur als Boden markierten Schicht hat.
+Dieses leere Game Object ist unterhalb des Spielers gesetzt und analog zur Layer Mask im Editor gesetzt und im Code referenziert.
+Auf diese Weise lässt sich mit der Funktion CheckSphere aus dem Modul: Unity.Physics diesen Sachverhalt bearbeiten. Diese Funktion gibt einen boolschen Wert zurück der innerhalb eines eigenen Feldes gespeichert wird und somit verwendet werden kann.
+
+\lstinputlisting[
+  style=csharpStyle,
+  caption={Methode \texttt{Move()}},
+  label={lst:Move}
+]{src/PlayerMovement/Move.cs}
+
+Beim Prüfen auf ein geerdetes Spielerobjekt und ob die aktuelle Geschwindigkeit in Y-Richtung negativ ist, wird grundsätzlich diese Geschwindigkeit auf -2 gesetz. Das hat den Grund, dass in vielen Fällen ein unsauberers Verhalten auftreten kann und der Spieler in manchen Fällen ungewollt durch das Spielfeld fallen könnte.
+(2f wegen Wurf-Formel?)
+
+Anschließend wird das eigentliche Spielerobjekt – in diesem Fall der Character Controller – bewegt. Dazu wird dessen \textit{Move}-Methode aufgerufen, welche von Unitys CharacterController-Klasse bereitgestellt wird. Die übergebene Verschiebung ergibt sich aus dem Produkt des gewünschten Bewegungsvektors, der aktuellen Geschwindigkeit und Time.fixedDeltaTime. Die Einbeziehung von \textbf{fixedDeltaTime} ist entscheidend, um Framerate-Abhängigkeiten zu vermeiden, die andernfalls zu inkonsistenten Bewegungsgeschwindigkeiten führen würden. Durch die Verwendung dieser zeitlichen Konstante, welche im physikbasierten FixedUpdate-Hook von Unity mit einer festen Frequenz (standardmäßig 50\,Hz) aufgerufen wird, bleibt die Bewegung des Spielers unabhängig von der tatsächlichen Bildwiederholrate konsistent.
+
+\textbf{Berechnung der Anfangsgeschwindigkeit für einen Sprung (senkrechter Wurf nach oben)}
+
+Um eine gewünschte Sprunghöhe $h$ zu erreichen, muss eine entsprechende Anfangsgeschwindigkeit $v_0$ gegen die konstante Schwerkraft $g$ aufgebracht werden. Die Berechnung erfolgt nach den Gesetzen des senkrechten Wurfs nach oben:
+
+\[
+v^2 = v_0^2 + 2 a s
+\]
+
+Am höchsten Punkt des Sprungs ist die Geschwindigkeit $v = 0$, die Beschleunigung $a$ entspricht der Schwerkraft $g$ (meist negativ, z.\,B. $g = -9{,}81\,\text{m/s}^2$) und der zurückgelegte Weg $s$ entspricht der gewünschten Höhe $h$. Umgestellt nach $v_0$ ergibt sich:
+
+\[
+0 = v_0^2 + 2 g h
+\]
+\[
+v_0^2 = -2 g h
+\]
+\[
+v_0 = \sqrt{ -2 g h }
+\]
+
+\begin{itemize}
+    \item $v_0$: Anfangsgeschwindigkeit beim Absprung (in $\text{m/s}$)
+    \item $g$: Erdbeschleunigung / Schwerkraft (in $\text{m/s}^2$, typischerweise negativ)
+    \item $h$: gewünschte maximale Sprunghöhe (in $\text{m}$)
+    \item $v$: Geschwindigkeit am höchsten Punkt (hier: $0$)
+\end{itemize}
+
+Die Berechnung stellt sicher, dass der Charakter unabhängig von der gewählten Schwerkraft und Sprunghöhe immer genau auf die gewünschte Höhe springt.
+
+\textbf{Beispiel}
+
+Soll eine Sprunghöhe von $h = 1{,}5\,\text{m}$ bei $g = -9{,}81\,\text{m/s}^2$ erreicht werden, so berechnet sich die notwendige Anfangsgeschwindigkeit zu:
+
+\[
+v_0 = \sqrt{ -2 \cdot (-9{,}81)\cdot 1{,}5 } = \sqrt{ 29{,}43 } \approx 5{,}43\,\text{m/s}
+\]
+
+In den restlichen Fällen ist der Spieler bereits in der Luft oder fällt von einem erhöhtem Objekt. Demnach wird eine negativer Wert für die Geschwindigkeit in Y-Richtung vorausgesetzt. 
+
+\subsection{Sicht und Mausbewegung}
+\label{Mausbewegung}
+In den allen Unity Projekten ist der zentrale visuelle Bestandteil die Kamera, welche einem Spielerobjekt hierarchisch untergeordnet ist. Die Platzierung der Kamera ist aus Sicht des Spieldesigns entscheidend, weil die Platzierung den Kern des Spiels grundlegend ändert. Wenn die Kamera also hinter dem Spieler platziert wird, handelt es sich um ein Third Person (Vogelperspektive) Spiel in diesem Fall ein Third Person Shooter. In anderen Fällen wird die Kamera auch auf physikalischer Kopfebene des Spielers platziert. Hierbei handelt es sich dann um ein First Person Spiel oder First Person Shooter (FPS). In einigen Fällen kann zwischen diesen Ansichten auch gewechselt werden, was in einer einfachen Implementierung dem Ändern des Transforms der Kamera gleicht.
+
+Die Maus oder der Joystick sind nicht nur zur Feinjustierung der Bewegung wichtig, sondern auch der Kern des Zielens. Hierfür müssen Bewegungen auf X- und Y-Achse aufgenommen und umgesetzt werden. 
+Üblicherweise werden diese beiden Achsen getrennt und in manchen Fällen auch als separate Mausempfindlichkeiten integriert, welche zur Feinjustierung beim Zielen dienen soll. Diese ist frei wählbar und auch so implementiert, dass man sie über einen Konsolenbefehl frei ändern kann.
+
+Die Berechnung und Einstellung der Mausempfindlichkeit erfolgt durch Multiplikation der rohen Eingabewerte (\texttt{Input.GetAxis("Mouse X")} bzw. \texttt{"Mouse Y"}) mit dem einstellbaren Empfindlichkeitsfaktor (\texttt{mouseSensitivity}) sowie \texttt{Time.deltaTime}. Die Skalierung mit \texttt{Time.deltaTime} stellt sicher, dass die Steuerung unabhängig von der Framerate konsistent bleibt.
+
+In Unity oder in der Spielentwicklung werden im Umgang mit Rotationen meistens Quaternionen verwendet während bei Positionen 2-Dimensionale oder 3-Dimensionale Vektoren verwendet werden. Diese Abgrenzung ist zum einen für die Entwickler gut zur schnellen Abgrenzung beim Lesen von Quellcode und zum anderen vermeidet man konsequent kardanische Blockaden, da diese bei Quaternionen nicht existieren. Wenn für die Maussteuerung demnach keine Quaternionen verwendet werden, wie es hierbei der Fall ist, muss dafür kompensiert werden um Fehlverhalten zu vermeiden.
+
+Um das sogenannte {Gimbal Lock}-Problem oder Kardanische Blockade zu vermeiden, wird die Rotation der Kamera um die lokale $x$-Achse (\texttt{\_xRotation}) mittels \texttt{Mathf.Clamp} auf den Bereich zwischen $-90^\circ$ und $+90^\circ$ begrenzt. 
+Gimbal Lock bezeichnet den Zustand, bei dem durch Rotationen um mehrere Achsen eine Freiheitsgrad verloren geht und unerwünschte Effekte wie das Umklappen oder Überschlagen der Kamera auftreten können. Die Begrenzung sorgt dafür, dass der Spieler maximal nach oben oder unten blicken kann, jedoch nie die Grenze überschreitet, an der die Steuerung unnatürlich oder fehlerhaft wird.
+
+Die tatsächliche Kamerarotation erfolgt durch Setzen der lokalen Rotation des Kameraobjekts mittels \texttt{Quaternion.Euler(\_xRotation, 0f, 0f)} für die vertikale Achse sowie durch Rotation des Spielerobjekts (hier \texttt{playerBody}) um die Welt-$y$-Achse (\texttt{Vector3.up}) für horizontale Mausbewegungen. Durch diese Trennung der Achsen wird eine intuitive und fehlerfreie First-Person-Steuerung realisiert.
+
+Die Methode \texttt{SetSensitivity(float val)} ermöglicht es, die Empfindlichkeit der Mausbewegung zur Laufzeit anzupassen, wodurch die Steuerung individuell auf die Präferenzen des Nutzers abgestimmt werden kann.
+
+
+
+\section{Schießen}
+Beim Schießen wird primär eine Mechanik verwendet die aus Spielen wie Valorant oder Counter Strike üblich ist. Es wird somit auf eine primäre Zielfunktionalität verzichtet (Aiming Down Sights).
+Da es sich hierbei vor allem auch um Animationen und Waffenmodelle bzw. Assets handelt, ist das kein komplexer Mehraufwand sondern eher eine Frage des Spieldesigns. Somit wäre ein ADS-Mechanismus eine mögliche Erweiterung, ist allerdings nicht zwingend notwendig oder gewollt. Abgesehen davon führt es zu keiner besseren Visualisierung der vorzuführenden Netcode-Effekte, was es somit zu einer vor allem auf die Zeit bezogen, unnötigen Ergänzung macht.
+
+Die gewählte Mechanik ist im Grunde kein realistisches Schussverhalten, da die Waffe eher an der Hüfte geführt wird und von dieser Position treffsicher geschossen werden kann. Hierfür wird ein Crosshair oder Fadenkreuz verwendet, welches als Teil des Heads Up Displays(HUD) des Spielers existiert. Dieses HUD ist in Unity explizit ein Prefab, welches als eine im Code referenzierte Variable verwendet werden kann. Hiermit können Anpassungen auf Sichtbarkeit und weitere designspezifische Aspekte im Kontext des Spielflusses geändert werden.
+Dementsprechend gibt der Lauf der Waffe nicht das entscheidende Ziel des Schusses vor, sondern das Fadenkreuz in der Mitte des Bildschirms des Spielers. In vielen Spielen ist das jedoch eine sehr triviale und somit für den Spieler zu einfache Mechanik. Somit werden dementsprechend auch im Sinne des Realismus erschwerende Mechaniken wie wie mechanischer und prozeduraler Rückstoß integriert. Mechanischer Rückstoß kann in den meisten Fällen, abhängig von der Waffe entweder einem fixen oder eher freierem Muster folgen. Im Kontext auf den Verzicht auf die ADS-Mechanik, ist es somit üblich, dass Schüsse bei erhöhter Feuerrate nicht zwingen dort landen wo auch das Fadenkreuz zum Zeitpunkt eines Schusses liegt. 
+In dieser Arbeit ist jedoch die Rückstoßberechnung prozedural gestaltet, indem jeder Schuss für eine visuelle Verschiebung und Rotation der Waffe sorgt. Prozedural bedeutet in diesem Kontext, dass der Rückstoß oder zumindest dessen visuelle Erscheinung, algorithmisch entsteht.
+\lstinputlisting[
+  style=csharpStyle,
+  caption={Prozedural-visueller Rückstoß},
+  label={lst:Recoil}
+]{src/Gun/Recoil.cs}
+
+Diese Implementation hat keine Einflüsse auf die Spielmechanik und ist somit von Netcode spezifischer Komplexität befreit. Das hat den Vorteil im Kontext der visuellen Interpretierbarkeit Abschnitt \ref{Netcode}(genauer), dass es keine Varianzen im Schussverhalten gibt.
+
+Der grobe Ablauf beim Waffe abfeuern ist eventbasiert implementiert. Es sind von zwei Events die Rede, nämlich das Schießen zum einen und das Nachladen zum anderen. 
+Wie bereits erwähnt ist ein Skript, welches für die Mausbewegung zuständig ist ausschlaggebend für die Positionierung des Fadenkreuzes und somit der Kameramitte. 
+Wenn somit ein Schuss abgefeuert wird, soll genau dort wo die Kameramitte liegt, ein Raycast projeziert werden. Ein Raycast hat somit eine Endposition und an dieser Position soll ein Einschussloch gerendert werden. Ein Einschussloch dient somit der Validierung der Schussmechanik und zur besseren Immersion des Spiels. 
+
+Im Bezug auf das Schießen auf Ziele, soll eine Waffe Metadaten beinhalten wie: 
+\lstinputlisting[
+  style=csharpStyle,
+  caption={Scriptable Object GunData},
+  label={lst:GunData}
+]{src/Gun/GunData.cs}
+Hier wird unter anderem das Attribut \textbf{CreateAssetMenu} verwendet um ein dediziertes Menü in Unity zu erstellen, das die Wertezuweisung möglich macht. 
+
+Das Attribut ermöglicht überhaupt ein Anlegen einer solchen Asset Datei, wodurch dann erst ein Menü sichtbar wird. Spezifikationen werden mit den Parametern \textbf{fileName} und \textbf{menuName} übergeben und festgelegt.
+
+Diese Metadaten können pro Waffe sehr unterschiedlich ausfallen und werden über eine Asset-Datei, welche als Konfigurationsdatei im YAML-Format geschrieben ist, gespeichert. 
+Ein weiteres Attribut: \textbf{[HideInspector]} kann verwendet werden um bestimmte Felder im Unity-Editor \textit{unsichtbar} zu machen. Das ist üblich, wenn man Felder nur innerhalb der Spiellogik dynamisch ändern will. Hierbei ist dies der Fall mit dem Status des Nachladevorgangs. 
+Wenn sich nämlich dieser Status ungewollt ändert, kann somit das Schießen gesperrt werden. Durch das Attribut kann man dadurch theoretisch anfallenden Debugging Aufwand reduzieren oder vermeiden, da die Kontrolle auf den Nachladestatus beschränkt ist. Ansonsten ist beim Starten des Spiels eine Wiederherstellung des Standardwertes nötig, um dieses Fehlverhalten bei allen Spielern zu vermeiden.
+
+Wichtige Felder in diesem Kontext sind die Metadaten, die das Schießen direkt oder transitiv beeinflussen. Wenn sich aus einem der Felder eine abgleitete Eigenschaft bilden lässt, ist sie demnach ebenso wichtig.
+
+Die grundlegende Funktionalität basiert auf zwei Events, die beim Start des Spiels jeweils entsprechende Methoden abonnieren und beim Beenden wieder deabonnieren. Je nach Situation kann entweder nachgeladen oder geschossen werden; beide Aktionen schließen sich gegenseitig aus. Befindet sich der Spieler beispielsweise im Nachladevorgang, ist das Schießen für die verbleibende, in den Metadaten festgelegte Nachladezeit nicht möglich.
+\newpage
+Jedes Mal wenn also versucht wird zu schießen wird diese Prüfung vorgenommen:
+\lstinputlisting[
+  style=csharpStyle,
+  caption={Methode CanShoot},
+  label={lst:CanShoot}
+]{src/Gun/CanShoot.cs}
+Die Methode \texttt{CanShoot()} prüft, ob die Waffe aktuell nicht nachgeladen wird und ob seit dem letzten Schuss ausreichend Zeit vergangen ist. Letzteres wird anhand der akkumulierten Zeit seit dem letzten Schuss (\texttt{\_timeSinceLastShot}) und der Feuerrate berechnet. Nur wenn beide Bedingungen erfüllt sind, kann ein weiterer Schuss abgegeben werden. Dadurch wird sichergestellt, dass zwischen zwei Schüssen stets ein Mindestabstand gemäß der festgelegten Feuerrate eingehalten wird.
+
+\subsection{Nachladen}
+Zum Nachladen wird eine Coroutine verwendet, die eine asynchrone Verarbeitung des Nachladevorgangs ermöglicht. Coroutinen sind ein besonderes Feature von Unity, das auf dem IEnumerator-Interface aus C\# basiert. Während im allgemeinen .NET-Umfeld für asynchrone Operationen üblicherweise das async/await-Pattern mit Task verwendet wird, nutzt Unity Coroutinen, um nicht-blockierende Abläufe innerhalb des Game Loops zu realisieren. Das Konzept von Coroutinen existiert auch in anderen Programmiersprachen, etwa in Python oder Kotlin, wird jedoch jeweils unterschiedlich implementiert \cite{coroutineUnity}.
+\newpage
+Wenn ein Spieler nachlädt, ist es demnach sinnvoll wenn der in den Metadaten festgelegte Nachladetimer nicht den Mainthread blockiert. Die Methode oder Coroutine gibt also ein Objekt zurück, das das Interface IEnumerator implementiert und wird wenn man sich nicht aktuell im Nachladeprozess befindet, mit Hilfe einer weiteren Methode aufgerufen.
+\lstinputlisting[
+  style=csharpStyle,
+  caption={Methoden zum Nachladen},
+  label={lst:Reload}
+]{src/Gun/Reload.cs}
+Das eigentliche Nachladen beschränkt sich auf das Zurücksetzen der Urpsrungswerte wie sie in den Metadaten gespeichert sind. Diese Aktion findet demnach erst statt, wenn die Zeit zum Nachladen abgelaufen ist und wird dann in der Munitionsanzeige im HUD gerendert.
+\newpage
+
+\subsection{Zielobjekt und Spawner}
+\label{Spawner}
+Das Zielobjekt ist ein vom Server gesteuertes 3D-Objekt, das sich zufällig entlang der X-Achse bewegt. Sobald das Spiel gestartet wird, wird dieses Objekt innerhalb eines festgelegten Bereichs über das Netzwerk erzeugt und platziert. Ein sogenanntes Spawnfeld ist dabei ein zentraler Bestandteil, um Objekte oder Spieler im Spiel korrekt erscheinen zu lassen. Das gezielte Spawnen von Objekten im Multiplayer-Kontext ist eine grundlegende Mechanik, die in den meisten Mehrspieler-Spielen zum Einsatz kommt. In der Regel existieren mehrere Spawnpunkte, die als Array von \texttt{Transform}-Objekten bzw. Vektoren definiert werden, um eine flexible und gleichmäßige Verteilung der Spielobjekte zu gewährleisten.
+Mehrere Spawn-Felder sind jedoch eher in größeren Multiplayer-Spielen entscheidend, wobei ein durchdachtes Spawnsystem implementiert werden muss und auf Spawnpunkte je nach Kontext des Spielzustandes zugegriffen wird. In diesem einfachen Szenario gibt es nur eine Fläche in der das Zielobjekt erscheint und nach Abschuss zerstört und nach einer Verzögerung neu gesetzt wird. Für diese Mechanik ist wiederum ein Prefab dieses Zielobjektes nötig, von dem es Klone geben kann. Diese Klone haben alle unterschiedliche Network-IDs und werden somit klar verwaltet. 
+
+Für das Zielobjekt existiert ein dediziertes Spawner-Skript, das die Verantwortung für das Spawnen des Zielobjekts innerhalb des definierten Spawn-Feldes übernimmt. Damit ein korrektes Spawn-Verhalten gewährleistet ist, müssen sowohl das Target- als auch das Spawner-Skript als \texttt{NetworkObject} ausgelegt sein. Für eine sinnvolle Integration der beiden Skripte werden gegenseitige Abhängigkeiten benötigt, die in der aktuellen Implementierung durch eine Dependency-Injection-ähnliche Methodik erlangt werden. Im Unterschied zu einer klassischen Dependency Injection erfolgt die Zuweisung der Abhängigkeiten jedoch nicht von außen, sondern wird im Skript selbst zur Laufzeit ermittelt.
+\lstinputlisting[
+  style=csharpStyle,
+  caption={spawn},
+  label={lst:spawn}
+]{src/Target/DI.cs}
+Durch diesen Funktionsaufruf kann somit generisch auf das erste Objekt dieses Typs zugegriffen werden. In diesem Szenario ist das noch möglich, da sich niemals mehr als ein Spawner-Objekt im Spiel befinden können. 
+
+Die eigentliche Spawn-Logik ist was die Bereitstellung der Abhängigkeiten angeht, ähnlich aufgebaut und nutzt ebenfalls einen generischen Zugriff auf das Objekt der anderen Klasse um es dann zu setzen. 
+Konkret ist für das Spawnen ein referenziertes Prefab, was in dem Fall, dass Prefab des Zielobjekts ist, eine zufällige Position innerhalb des des Spawnfeldes und eine Rotation nötig. Hiermit lässt sich eine Instanz erstellen, welche dann in erster Linie über das Netzwerk gesetzt werden kann.
+\lstinputlisting[
+  style=csharpStyle,
+  caption={Spawn},
+  label={lst:Spawn}
+]{src/Target/Spawn.cs}
+
+
+
+\subsection{Kernlogik}
+Wenn eine Eingabe für einen Schuss registriert wird, soll also geprüft werden können was man getroffen hat. Ist es nämlich ein zufälliger Teil des Spielfeldes, hat dieser Treffer nur wenig Bedeutung. 
+Wenn allerdings das vorgesehene Ziel getroffen wird, soll diesem Zielobjekt Schaden zugeführt werden. Hierbei muss beim Schuss kontrolliert werden ob dem getroffenen Objekt überhaupt Schaden zufügbar ist. Das wird mit Hilfe eines Interfaces getan, welches hiermit prüft, ob die Komponente dieses Interface implementiert und wenn das der Fall ist, kann auf dieser Komponente bzw. dessen Objekt die Methode zum Schaden zuführen aufgerufen werden.
+
+\lstinputlisting[
+  style=csharpStyle,
+  caption={Damage},
+  label={lst:Damage}
+]{src/Gun/IDamageable.cs}
+
+Um auszuwerten was beim Schuss getroffen wurde, ist im Multiplayer-Szenario die Hauptmethode für die Schussmechanik mit einem ServerRpc verbunden. In Kombination wird ein Raycast von Unity verwendet der prüft, ob ein Collider getroffen wurde innerhalb der Einschränkungen von z.B. der maximalen Schussdistanz.
+Nur in diesem Fall gibt die Funktion \textbf{Physics.Raycast()} überhaupt \textit{true} zurück und es lassen sich Einschusslöcher am Ziel spawnen und sogar Schaden am Zielobjekt zufügen, falls dieses getroffen ist.
+
+Ein Collider wäre in diesem Fall eine Wand, der Boden oder eben das Zielobjekt. Beim Beispiel des Zielobjektes was intern eine Kugel ist oder eine Sphere wird beim Erstellen dieses Objektes Initiieren dieses Prefabs automatisch ein analoger Collider mit angelegt. 
+Passend zu dem Objekttyp handelt es sich hier um einen sogenannten Sphere Collider, welcher aus diesem Objekt ein greifbaren Gegenstand macht an dem Spieler oder Projektile kollidieren können.
+
+\newpage
+
+Der beschriebene Ablauf verläuft wie folgt:
+\lstinputlisting[
+  style=csharpStyle,
+  caption={Methode Shoot},
+  label={lst:Shoot}
+]{src/Gun/Shoot.cs}
+
+Um die Verarbeitung des Schusses sinngemäß mit dem Raycast zu tätigen braucht es nötige Parameter in der Funktion, die vor allem für die Ausrichtung und die Blickrichtung nötig sind.
+Für den Ursprung der Kamera wird die Bildschirmmitte gewählt bzw. der Punkt in dem auch das Fadenkreuz liegt. 
+Die Blickrichtung geht über die Z-Achse nach vorne und gibt somit die Schussrichtung an. 
+Der Parameter \textbf{camHit} gibt Informationen über das getroffene Objekt an, beispielsweise die genaue Trefferposition oder den getroffenen Collider. In C\# werden Parameter standardmäßig als Kopie („by value“) übergeben, sodass Methoden keine Änderungen an der ursprünglichen Variablen des Aufrufers vornehmen können. Durch das Schlüsselwort \texttt{out} wird dieses Verhalten jedoch geändert: Die Methode erhält einen Verweis auf die übergebene Variable und kann diese innerhalb ihres Gültigkeitsbereichs mit den relevanten Trefferinformationen befüllen. Die so befüllte Variable steht nach dem Methodenaufruf auch im aufrufenden Kontext mit den neuen Werten zur Verfügung \cite{dotnetOut}.
+
+Als LayerMask wird die bereits deklarierte Variable hitMask verwendet, die für den möglichen Trefferbereich zuständig ist. Eine Skybox wäre zum Beispiel kein Gültiger Treffer. In diesem Fall würde die Methode \textit{false} zurückgeben.
+Wenn der Schuss außer Reichweite der Waffe sein sollte, es aber ein laut hitMask ungültiges Objekt trifft, wird ebenfalls \textit{false} zurückgegeben. 
+(hier unter Umständen unvollständig weil lost)
+
+Wenn die Schussregistrierung damit abgeschlossen ist, wird letztlich die Munitionsazeige aktualisiert indem der aktuelle Munitionsstand im Magazin um eine Kugel abgezogen wird.
+Die Zeit seit dem letzten Schuss wird zurückgesetzt und die waffenspezifischen Animationen und das Schussgeräusch werden abgespielt. 
+
+
+
+
+
+
+
+
 
 

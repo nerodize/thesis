@@ -1,0 +1,36 @@
+@startuml
+actor Player
+participant Client
+participant Server
+participant Target
+
+== Schussabgabe ==
+
+Player -> Client : Klickt "Feuer"
+Client -> Client : Raycast (lokal, Sichtlinie)
+Client -> Server : ShootServerRpc(origin, direction, targetId, clientTimeOffset)
+
+== Lag Compensation Prüfung ==
+
+Server -> Target : (optional) Setze Position auf rewoundPos (bei lagCompensation)
+Server -> Server : Prüfe Treffer auf rewound/current Position
+
+alt Treffer erkannt
+    Server -> Target : Damage() aufrufen
+    alt LagCompensation aktiviert
+        Server -> Client : ConfirmLagCompHitClientRpc(targetId)
+    else
+        Server -> Client : ConfirmHitClientRpc()
+    end
+else Kein Treffer
+    Server -> Client : (keine Aktion)
+end
+
+== Visualisierung auf Client ==
+
+Client -> Client : Hitmarker und Sound anzeigen
+alt LagCompensation aktiviert
+    Client -> Target : Renderer kurzfristig einfärben (FlashHitColor)
+end
+
+@enduml

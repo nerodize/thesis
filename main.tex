@@ -1,7 +1,7 @@
 \documentclass[
 11pt, % The default document font size, options: 10pt, 11pt, 12pt
-%oneside, % Two side (alternating margins) for binding by default, uncomment to switch to one side
-english, % ngerman for German
+oneside, % Two side (alternating margins) for binding by default, uncomment to switch to one side
+ngerman, % ngerman for German
 singlespacing, % Single line spacing, alternatives: onehalfspacing or doublespacing
 %draft, % Uncomment to enable draft mode (no pictures, no links, overfull hboxes indicated)
 %nolistspacing, % If the document is onehalfspacing or doublespacing, uncomment this to set spacing in lists to single
@@ -18,7 +18,11 @@ headsepline, % Uncomment to get a line under the header
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{listings}
+\usepackage{svg}
 \usepackage{xcolor}
+\usepackage{pgf-umlsd}
+\usepackage{pgf-umlcd}
+\usepackage{changepage}
 %\usepackage{fancyhdr} 
 \usepackage[colorlinks=true, linkcolor=blue, citecolor=, urlcolor=red]{hyperref} 
 \usepackage{float}
@@ -68,20 +72,20 @@ headsepline, % Uncomment to get a line under the header
 \begin{document}
 
 \include{Frontpage/frontpage}
-\maketitle
-
+\maketitle 
 
 \tableofcontents
 
-
 \mainmatter
+\include{chapters/chapter_0}
 \include{chapters/chapter_1}
 \include{chapters/chapter_2}
 \include{chapters/chapter_3}
 \include{chapters/chapter_4}
 \include{chapters/chapter_5}
+\include{chapters/chapter_6}
+%\include{diagrams/uml-recon}
 \end{enumerate}
-
 
 \printbibliography
 
